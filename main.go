@@ -1,9 +1,5 @@
 package main
-
-// import (
-// 	"fmt"
-// 	"os"
-// )
+import "fmt"
 
 func main()  {
 	println("Hello World")

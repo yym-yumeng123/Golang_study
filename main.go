@@ -30,4 +30,11 @@ func main()  {
 	// 修改 i 的值
 	*ip = 200
 	println(i) // 200
+
+
+	// 常量
+	const LENGTH int = 10
+	const area int
+	const a, b, c = 1, false, "str" // 多重赋值
+	fmt.Println(a,b,c)
 }

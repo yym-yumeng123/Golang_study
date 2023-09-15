@@ -235,3 +235,23 @@ delete(m, "banana")
 #### delete() 函数
 
 delete() 函数用于删除集合的元素, 参数为 map 和其对应的 key
+
+#### 实际使用
+
+- map 用于存储键值对数据, 类似其他语言中的字典或者关联数组
+- 可以通过key 快速查找值
+- Go语言内置的init函数使用map存储了保内置的全局变量
+
+```go
+// 存储用户信息
+user := map[string]string{
+	"name": "张三",
+	"age": "25"
+}
+
+// 统计单词出现次数
+count := make(map[string]int)
+for _, word := range words {
+	count.word++
+}
+```

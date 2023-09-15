@@ -2,7 +2,15 @@
 
 切片是对数组的抽象
 
-数组的长度不可改变, 在特定场景中这样的集合就不太适用, Go 提供了("动态数组")与数组比, 切片的长度不是固定的, 可以追加元素, 在追加时使切片的容量增大
+数组的长度不可改变, 在特定场景中这样的集合就不太适用, Go 提供了 Slice("动态数组")与数组比, 切片的长度不是固定的, 可以追加元素, 在追加时使切片的容量增大, 零值是 nil
+
+```go
+var s []int // 空切片
+for i :=0, i < 10; i++ {
+  s = append(s, i) // 添加
+}
+s = append(s[:1], s[2:]...) // 删除下标为 1
+```
 
 #### 定义切片
 
@@ -15,12 +23,13 @@ var slice1 []type = make([]type, len)
 slice1 := make([]type, len)
 
 // 可以指定容量, 其中 capacity 为可选参数
-make([]T, length, capacity)
+make([]T, length, capacity?)
 ```
 
 切片初始化
 
 ```go
+var arr [10]int{1,2,3,4,5,6,7,8}
 /**
 [] 表示切片类型
 {1,2,3} 初始化值一次是 1, 2, 3, 其 cap = len = 3
@@ -48,7 +57,7 @@ s := make([]int, len, cap)
 
 #### len() cap() 函数
 
-切片是可索引的, 可以由 len() 方法获取长度.
+切片是可索引的, 可以由 len() 方法获取切片长度.
 切片提供了计算容量的方法 cap() 可以测量切片最长可以达到多少
 
 ```go
@@ -74,15 +83,15 @@ package main
 import "fmt"
 
 func main() {
-   var numbers []int
-   printSlice(numbers)
-   if(numbers == nil){
-      fmt.Printf("切片是空的")
-   }
+    var numbers []int
+    printSlice(numbers)
+    if( numbers == nil ){
+		fmt.Printf("切片是空的")
+    }
 }
 
 func printSlice(x []int){
-   fmt.Printf("len=%d cap=%d slice=%v\n",len(x),cap(x),x)
+    fmt.Printf("len=%d cap=%d slice=%v\n",len(x),cap(x),x)
 }
 ```
 
@@ -137,7 +146,7 @@ func main() {
 
   for _, value := range map1 {
     fmt.Printf("value is: %f\n", value)
-  } 
+  }
 }
 
 
@@ -151,7 +160,7 @@ func main() {
   kvs := map[string]{"a", "apple", "b", "banana"}
   for k, v := range kvs {
 
-  } 
+  }
 
   for i, c := range "go" {
 
@@ -159,14 +168,24 @@ func main() {
 }
 ```
 
-
 ### Map 集合
 
-Map 是一种无序的键值对集合, 通过 key 来快速检索数据, key类似索引, 指向数据的值
+特点: 
+1. 映射关系 -> 使用哈希表实现, 可以存储键值对数据
+2. 无序性 -> map中的元素不是按顺序排序的, 也不能通过索引访问, 只能通过键访问
+3. 键的唯一性 -> 键不能重复, 重复会覆盖前一个值
+4. 变长 -> map 可以动态增减键值对, 长度可以任意扩容和收缩
+5. `nil map` -> 没有初始化的 map 值是 nil, nil map 不能用来存储键值对
+6. 引用类型 -> map是引用类型, 作为函数参数时遵循引用传递, 可以直接修改原始map
+7. 线程不安全 -> 同时读写 map 需要加锁同步
+8. 优化查找 -> 基于哈希表实现, 查找速度很快
+9. 按遍历顺序返回 -> Go1.12之后, 遍历 map 的元素顺序是确定的, 不在随机
 
-Map 是一种集合, 可以迭代, 不过, map 是无序的, 
+Map 是一种无序的键值对集合, 通过 key 来快速检索数据, key 类似索引, 指向数据的值
 
-在获取 Map 值时, 如果键不存在, 返回该类型的零值, 例如 int 类型的零值是 0, string类型零值是 ""
+Map 是一种集合, 可以迭代, 不过, map 是无序的,
+
+在获取 Map 值时, 如果键不存在, 返回该类型的零值, 例如 int 类型的零值是 0, string 类型零值是 ""
 
 #### 定义 Map
 
@@ -176,7 +195,7 @@ Map 是一种集合, 可以迭代, 不过, map 是无序的,
 /**
 keyType 键的类型
 ValueType 值的类型
-initialCapacity 可选参数, 用于指定Map的初始容量, 
+initialCapacity 可选参数, 用于指定Map的初始容量,
 Map 的容量是指 Map中可以保存的键值对的数量, 当 Map 中的键值对数量达到容量时，Map 会自动扩容
 */
 map_variable := make(map[KeyType]ValueType, initialCapacity)
@@ -187,7 +206,7 @@ m := make(map[string]int)
 // 创建一个初始容量为 10 的 Map
 m := make(map[string]int, 10)
 
-// 字面量创建 Map: 
+// 字面量创建 Map:
 m := map[string]int {
   "apple": 1
   " banana": 2,
@@ -212,7 +231,6 @@ for k, v := range m {
 // 删除元素
 delete(m, "banana")
 ```
-
 
 #### delete() 函数
 

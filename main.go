@@ -1,9 +1,9 @@
 package main
+
 import "fmt"
 
-func main()  {
+func main() {
 	println("Hello World")
-
 
 	// 变量
 	// var name string = "yym"
@@ -24,17 +24,16 @@ func main()  {
 	// 通过 & 拿到内存地址
 	ip = &i
 
-	println(i)// 100
+	println(i) // 100
 	// 读取 i 的值
 	println(*ip) // 100
 	// 修改 i 的值
 	*ip = 200
 	println(i) // 200
 
-
 	// 常量
 	const LENGTH int = 10
-	const area int
+	//const area int
 	const a, b, c = 1, false, "str" // 多重赋值
-	fmt.Println(a,b,c)
+	fmt.Println(a, b, c)
 }

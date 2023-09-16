@@ -82,4 +82,13 @@ outer:
 	for _, oddNumber := range oddNumbers {
 		fmt.Println(*oddNumber)
 	}
+
+	// goto
+	k := 0
+start:
+	if k < 10 {
+		fmt.Println(k)
+		k++
+		goto start
+	}
 }

@@ -2,8 +2,6 @@ package main
 
 import "fmt"
 
-type any = interface{}
-
 func someFunc() {
 	fmt.Println("someFunc() called")
 	// 1. 一旦执行panic, 程序会立即停止当前函数的执行, 向调用者抛出 panic 异常

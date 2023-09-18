@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -12,6 +13,18 @@ func add4(a, b int) (int, error) {
 	return a + b, nil
 }
 
+type MyError struct {
+	message string
+}
+
+func (e *MyError) Error() string {
+	return e.message
+}
+
+func doSomething() error {
+	return &MyError{"something went wrong"}
+}
+
 func main() {
 	result, err := add4(-1, 2)
 	if err != nil {
@@ -19,4 +32,14 @@ func main() {
 	} else {
 		fmt.Println("result:", result)
 	}
+
+	if err1 := doSomething(); err1 != nil {
+		var myErr *MyError
+		if errors.As(err1, &myErr) {
+			fmt.Println(myErr)
+		} else {
+			fmt.Println("err is not MyError")
+		}
+	}
+
 }

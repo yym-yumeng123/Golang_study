@@ -120,16 +120,91 @@ func doSomething() error {
 }
 ```
 
-1. `is`
+1. `Is`函数用于判断一个错误对象 `err`是否是某个特定错误对象 target. 如果 err 是 target 或者 err 的一个包装错误对象, 那么 Is函数返回 true, 否则返回 false
+2. `As`函数用于将一个错误对象 err 转为某个特定的类型, 并将其赋值给 `target`. 如果 err 可以被转换为 target 的类型, 那么 As 函数返回 true
+
+```go
+import (
+"errors"
+"os"
+)
+
+func readFile(filename string) error {
+file, err := os.Open(filename)
+if err != nil {
+if errors.Is(err, os.ErrNotExist) {
+return errors.New("file does not exist")
+}
+return err
+}
+defer file.Close()
+
+// do something with file
+return nil
+}
 
 
+type MyError struct {
+message string
+}
 
+func (e *MyError) Error() string {
+return e.message
+}
 
+func doSomething() error {
+return &MyError{"something went wrong"}
+}
 
+func main() {
+err := doSomething()
 
+var myErr *MyError
+if errors.As(err, &myErr) {
+// handle myErr
+} else {
+// handle other errors
+}
+}
 
+```
 
+3. `Wrap`
 
+```go
+import "fmt"
+
+func doSomething() error {
+    err := doSomethingElse()
+    if err != nil {
+        return fmt.Errorf("failed to do something: %w", err)
+    }
+    return nil
+}
+```
+
+4. `Unwrap` 函数用于返回一个错误对象的底层错误对象, 该底层对象是通过 `Wrap` 函数包装而成的. 如果该错误对象没有被包装Go, `Unwrap`函数返回 nil
+
+```go
+func main() {
+    err := doSomething()
+    if err != nil {
+        fmt.Printf("error: %s\n", err.Error())
+
+        if underlyingErr := errors.Unwrap(err); underlyingErr != nil {
+            fmt.Printf("underlying error: %s\n", underlyingErr.Error())
+        }
+    }
+}
+
+func main() {
+  err := fmt.Errorf("main error: %w", errors.New("unknown error"))
+  fmt.Println(err)
+
+  underlyingErr := errors.Unwrap(err)
+  fmt.Println(underlyingErr)
+}
+```
 
 
 

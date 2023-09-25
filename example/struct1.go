@@ -13,8 +13,8 @@ type Person1 struct {
 }
 
 type Employee struct {
-	Person1         // 是一个人
-	Salary  float64 // 工资
+	p1     Person1 // 是一个人
+	Salary float64 // 工资
 }
 
 // Area 面积
@@ -28,6 +28,10 @@ func (r *Rectangle1) Scale(s int) {
 	r.Height *= s
 }
 
+func PrintPerson(p Person1) {
+
+}
+
 func main() {
 	r := Rectangle1{
 		Width:  10,
@@ -39,8 +43,9 @@ func main() {
 	fmt.Println(r) // 100 200
 
 	e := Employee{
-		Person1: Person1{Name: "yym", Age: 19},
-		Salary:  1000,
+		p1:     Person1{Name: "yym", Age: 19},
+		Salary: 1000,
 	}
 	fmt.Println(e)
+	PrintPerson(e.p1)
 }

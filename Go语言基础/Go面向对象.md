@@ -154,3 +154,86 @@ type Employee struct {
 	Salary  float64 // 工资
 }
 ```
+
+### interface
+
+Go语言提供了另外一种数据类型即接口, 它把所有的具有共性的方法定义在一起, 任何其他类型只要实现了这些方法就是实现了这个接口
+
+接口可以让我们将不同的类型绑定到一组公共的方法上, 从而实现多态和灵活的设计
+
+Go语言中的接口是隐式实现的, 也就是说, 如果一个类型实现了一个接口定义的所有方法, 那么它就自动实现了该接口.
+因此, 我们可以通过将接口作为参数来实现对不同类型的调用, 从而实现多态
+
+```go
+// 定义接口
+type interface_name interface {
+    method_name1 [return_type]
+	method_name2 [return_type]
+	...
+}
+
+// 定义结构体
+type struct_name struct {
+	// variables
+}
+
+// 实现接口方法
+func (struct_name_variable struct_name) method_name1() [return_type] {
+  // 方法实现
+}
+func (struct_name_variable struct_name) method_namen() [return_type] {
+  // 方法实现
+}
+```
+
+指针类型 receiver 使用指向该类型的指针作为接收者, 值类型 `receiver` 使用该类型的值作为接收者. 这两种接收者类型在实现接口时有不同的影响:
+
+1. 使用指针类型接收者实现接口
+    如果类型使用指针类型接收者实现接口, 即实现了该接口所定义的方法, 并且这些方法的接收者时该类型的指针, 则只有指向该类型的指针才能被视为实现了该接口的类型
+2. 使用值类型接收者实现接口
+    如果类型使用值类型接受者实现接口, 则该类型的值和指向该类型的指针都可以被视为实现了该接口的类型
+
+**interface 嵌套与组合**
+
+接口可以嵌套在其它接口中, 从而形成更复杂的接口类型. 称为接口嵌入
+
+```go
+type Eater interface {
+	Eat()
+}
+
+type Animal1 interface {
+	Eater
+	Sleep()
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

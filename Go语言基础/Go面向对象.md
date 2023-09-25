@@ -208,14 +208,37 @@ type Animal1 interface {
 }
 ```
 
+**断言和类型转换**
+
+```go
+func AnimalEat(a Eater) {
+	a.(Animal).Sleep()
+}
+
+func main() {
+	d := &EaterDog{}
+	AnimalEat(d)
+}
 
 
+// 接口类型断言
+func AnimalEat(a Eater)  {
+	animal, ok := a.(Animal)
+	if ok {
+		animal.Sleep()
+}
+}
+```
 
 
+**判断接口是否为nil**
 
 
+对于一个 interface 来说, 它有两个要素, 一个是 `type T`, 一个是 `value V`, 分别对应 `reflect` 中的 `TypeOf和ValueOf`
 
+```go
 
+```
 
 
 

@@ -237,7 +237,19 @@ func AnimalEat(a Eater)  {
 对于一个 interface 来说, 它有两个要素, 一个是 `type T`, 一个是 `value V`, 分别对应 `reflect` 中的 `TypeOf和ValueOf`
 
 ```go
+func IsNil(i interface{}) {  
+   if i == nil {  
+      fmt.Println("i is nil")  
+      return  
+   }  
+   fmt.Println("i isn't nil")  
+}  
 
+func main() {  
+   var sl Animal = nil  
+   fmt.Println(reflect.TypeOf(sl), reflect.ValueOf(sl))  
+   IsNil(sl)  
+}
 ```
 
 

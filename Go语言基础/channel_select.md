@@ -55,3 +55,36 @@ func main() {
 
 #### 从一个未初始化的 channel 中读取数据都会被永远堵塞 `deadlock`
 
+
+
+---
+
+### Select 使用场景
+
+`select` 用于同时等待多个 `channel` 中的读写操作
+
+```go
+select {
+  case <- channel1:
+		// 当channel1 可以读取时执行的代码
+  case data := <-channel2:
+		// 当 channel2可以读取执行的代码, 将读取的数据存储在 data 变量中
+  case channel3 <- data:
+		// 当向 channel3 发送数据时执行的代码
+  default:
+		// 当没有任何通道准备好时执行的代码
+}
+```
+
+select 语句会等待多个 channel 中的任意一个可以进行读写操作，并执行对应的分支语句
+
+如果有多个 channel 同时可以进行读写操作，select 会随机选择一个进行处理
+
+如果所有的 case 子句都无法执行，并且没有 default 子句，select 语句会一直阻塞直到其中一个 case 子句可以执行为止
+
+**需要注意的问题:**
+
+1. select 语句会等待多个 channel 中的任意一个可以进行读写操作
+2. 不能在 `select` 语句中使用相同的 `unbuffer channel` 进行读写操作
+3. 如果一个channel已经被关闭了, 再向它写入数据会导致 panic
+

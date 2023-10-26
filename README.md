@@ -5,5 +5,5 @@
 ### 运行 go 代码
 
 ```bash
-go run xxx.go
+go run hello.go
 ```

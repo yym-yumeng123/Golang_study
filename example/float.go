@@ -29,4 +29,16 @@ func main() {
 	var n1 = 10 + '中'
 	fmt.Printf("n1=%c\n", n1)
 	fmt.Println("n1=", n1)
+
+	// 字符串
+	var name string = "我是杨雨萌\abc"
+	fmt.Println(name)
+
+	str1 := `package main
+import
+	`
+	fmt.Println(str1)
+
+	var str2 = "hello" + "world" + "world" + "world" + "world" + "world" + "world" + "world" + "world" + "world" +
+		"world" + "world" + "world"
 }

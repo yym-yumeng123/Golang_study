@@ -41,4 +41,5 @@ import
 
 	var str2 = "hello" + "world" + "world" + "world" + "world" + "world" + "world" + "world" + "world" + "world" +
 		"world" + "world" + "world"
+	fmt.Println(str2)
 }

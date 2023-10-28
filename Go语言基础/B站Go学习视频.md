@@ -177,3 +177,32 @@ var address string = "北京欢迎你"
 | 浮点型  | 0     |
 | 字符串  | ""    |
 | 布尔类型 | false |
+
+### 基本数据相互转换
+
+Golang数据类型`不能自动转换`
+
+- 基本语法: 表达式 `T(v)` 值 v 转换为类型 T
+  - T: 数据类型, 比如 `int32 int64 float32`
+  - v: 就是需要转换的变量
+
+```go
+var i int = 100
+// 把 i 类型转换为 float32
+var n1 float32 = float32(i)
+var n2 int8 = int8(i)
+```
+
+- Go数据类型转换可以从 表示范围小 -> 表示范围大, 也可以范围大 -> 范围小
+- 被转换的是变量存储的数据(值), 变量本身的数据类型没有变化
+
+
+**基本数据类型 -> string类型**
+
+1. `fmt.Sprintf("%参数", 表达式)` -> `example/practice/baseToString`
+2. 使用 `strconv` 包的函数
+
+**string类型转换为基本类型**
+
+1. 使用 `strconv` 包的函数
+2. 确保 string类型能够转换成有效的数据

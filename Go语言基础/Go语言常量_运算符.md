@@ -33,13 +33,13 @@ package main
 
 import "unsafe"
 const (
-    a = "abc"
-    b = len(a)
-    c = unsafe.Sizeof(a)
+  a = "abc"
+  b = len(a)
+  c = unsafe.Sizeof(a)
 )
 
 func main(){
-    println(a, b, c) // abc 3 16
+  println(a, b, c) // abc 3 16
 }
 ```
 
@@ -70,18 +70,18 @@ package main
 import "fmt"
 
 func main() {
-    const (
-            a = iota   //0
-            b          //1
-            c          //2
-            d = "ha"   //独立值，iota += 1
-            e          //"ha"   iota += 1
-            f = 100    //iota +=1
-            g          //100  iota +=1
-            h = iota   //7,恢复计数
-            i          //8
-    )
-    fmt.Println(a,b,c,d,e,f,g,h,i)
+  const (
+      a = iota  //0
+      b     //1
+      c     //2
+      d = "ha"  //独立值，iota += 1
+      e     //"ha"  iota += 1
+      f = 100  //iota +=1
+      g     //100 iota +=1
+      h = iota  //7,恢复计数
+      i     //8
+  )
+  fmt.Println(a,b,c,d,e,f,g,h,i)
 }
 
 ```
@@ -91,6 +91,9 @@ func main() {
 #### 算术运算符
 
 - `+ - * / % ++ --`
+- 对于除号 /, 整数之间做除法, 只保留整数部分二舍弃小数部分. `x := 19 / 5 => 3`
+- Golang自增自减只能当一个独立语言使用, 不能 `b:=a++`
+- Golang的`++ --` 只能写在变量后面, 不能写在前面
 
 ```go
 var a int = 21
@@ -103,20 +106,21 @@ c = a - b
 fmt.Printf("第二行 - c 的值为 %d\n", c ) // 11
 c = a * b
 fmt.Printf("第三行 - c 的值为 %d\n", c ) // 210
-c = a / b
+c = a / b // 保留整数位
 fmt.Printf("第四行 - c 的值为 %d\n", c ) // 2
-c = a % b
+c = a % b // 取余数 a % b = a - a / b * b
 fmt.Printf("第五行 - c 的值为 %d\n", c ) // 1
-a++
+a++ // a = a + 1
 fmt.Printf("第六行 - a 的值为 %d\n", a ) // 22
 a=21   // 为了方便测试，a 这里重新赋值为 21
-a--
+a-- // a = a - 1
 fmt.Printf("第七行 - a 的值为 %d\n", a ) // 20
 ```
 
 #### 关系运算符
 
 - `== != > < >= <=`
+- 结果都是 true/false
 
 ```go
 var a int = 21
@@ -151,6 +155,10 @@ if ( b >= a ) {
 
 #### 逻辑运算符
 
+- 用于链接多个条件, 最终结果也是一个 bool
+- && 逻辑与也叫短路与, 如果第一个条件为 false, 第二个不会判断
+- || 也叫短路或, 如果第一个条件为true, 第二个不会判断
+
 A 值为 True，B 值为 False
 
 - `&& -> (A && B) false`
@@ -158,6 +166,10 @@ A 值为 True，B 值为 False
 - `! -> !(A && B) true`
 
 #### 赋值运算符
+
+- 将某个运算后的值, 赋给指定的变量
+- 运算顺序从右向左
+- 赋值运算符左边, 只能是变量, 右边是变量 表达式 常量值
 
 - `= += -= *= /= %= <<= >>=  &= ^= |=`
 
@@ -179,8 +191,10 @@ ptr = &a // ptr 包含了 a 变量的地址
 
 由上至下代表优先级由高到低
 
-- 5. * / % << >> & &^ 
-- 4. + - | ^
-- 3. == != < <= > >=
-- 2. &&
-- 1. ||
+1. * / % << >> & &^ 
+2. + - | ^ 单目运算符
+3. == != < <= > >=
+4. &&
+5. ||
+6. 赋值运算符 = += *= ...
+7. 逗号 .

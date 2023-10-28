@@ -39,4 +39,12 @@ func main() {
 	} else {
 		fmt.Println("n2最大")
 	}
+
+	// fmt.ScanIn
+	var name string
+	var age byte
+	fmt.Println("请输入姓名")
+	fmt.Scanln(&name)
+	fmt.Println("请输入年龄")
+	fmt.Scanln(&age)
 }

@@ -221,13 +221,38 @@ func test() {
 
 
 
+---
+
+
+### 字符串中常用的函数
+
+1. 统计字符串的长度, 按字节 `len(str)`
+2. 字符串遍历 `r := []rune(str1)`
+3. 字符串转整数 `n, err := strconv.Atoi("12")`
+4. 整数转字符串 `strconv.Itoa(12345)`
+5. 字符串转 []byte `[]byte("hello")` 
+6. byte 转 字符串 `string([]byte{97, 98, 99})`
+7. 10进制转 2 8 16 进制, `strconv.FormatInt(123, 2)`
+8. 查找子串是否在指定的字符串中 `strings.Contains("yym", "y") true`
+9. 一个字符串中有几个指定的子串 `strings.Count("ceheese", "e")`
+10. 不区分大小写的字符串比较 `strings.EqualFold("abc", "Abc")`
+11. 返回子串在字符串第一次出现的 index 值 `strings.Index("NLT_ab", "ab")`
+12. 返回子串在字符串的最后一次出现的index `strings.LastIndex("", "")`
+13. 将指定子串替换 `strings.Replace("go go hello", "go", "go语言")`
+14. 分割字符串, 使用指定的分割符 `strings.Split("hello", ",")`
+15. 字符串字母大小写 `strings.ToLower("Go"), strings.ToUpper("Go")`
+16. 字符串两边空格去掉 `strings.TrimSpace("  rer  ")`
+17. 字符串两边指定的字符去掉 `strings.Trim("! Hello !", "!")`
+18. 字符串左边的字符去掉 `strings.TrimLeft()`
+19. 字符串右边的字符去掉 `strings.TrimRight`
+20. 字符串是否以指定字符串开头 `strings.HasPrefix()`
+21. 字符串是否以指定字符串结束 `string.HasSuffix()`
 
 
 
+### 时间和日期相关函数
 
-
-
-
+- `time 包`
 
 
 

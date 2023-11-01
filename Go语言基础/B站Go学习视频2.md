@@ -276,6 +276,30 @@ func test() {
 	)
 ```
 
+### 内置函数 builtIn
+
+1. len: 用来求长度, 比如 string array slice map channel
+2. new: 用来分配内存, 主要用来分配值类型, 比如int float32 struct 返回的是指针
+3. make: 用来分配内存, 主要用来分配引用类型, 比如 chan map slice
 
 
+### Golang错误处理
 
+1. Go语言追求简介优雅, Go不支持 `try..catch..finally`这种处理
+2. Go中引入的处理方式为 `defer panic recover`
+3. 上面几个异常的使用场景可以这样简单描述: Go中可以抛出一个panic的异常, 然后在defer中通过`recover捕获这个异常`, 然后正常处理
+   - 错误处理后, 可以不会让代码轻易崩溃, 让代码更加健壮
+4. 自定义错误: `errors.New panic内置函数`
+   - errors.New("错误说明"), 会返回一个error类型的值, 表示一个错误
+   - panic 内置函数, 接受一个 interface{} 类型的值作为参数,可以接受error类型的变量
+
+
+```go
+	defer func() {
+		// recover 内置函数, 可以捕获到异常
+		err := recover()
+		if err != nil {
+			fmt.Println("err=", err)
+		}
+	}()
+```

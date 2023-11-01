@@ -252,12 +252,29 @@ func test() {
 
 ### 时间和日期相关函数
 
-- `time 包`
+时间和日期函数 `time 包`
+
+1. `time.Time` 类型, 用于表示时间
+2. 获取到当前时间的方法 `now := time.Now()`
+3. 获取其它的日期信息 `now.Year/Month/Day/Hour/Minute/Second()`
+4. 格式化日期事件
+   - `Printf 或 Sprintf`
+   - `time.Now().Format("2006-01-02 15:04:05")`
+5. 时间的常量
+   - 在程序中可以获取指定单位的时间
+6. 休眠 `time.Sleep(100 * time.Millisecond)`
+7. 获取当前 Unix 时间戳 和 UnixNano 时间戳
+   - 可以获取随机数字
 
 
-
-
-
+```go
+	const (
+		Nanosecond  = 1                  // 纳秒
+		Microsecond = 1000 * Nanosecond  // 微妙
+		Millisecond = 1000 * Microsecond // 毫秒
+		Second      = 1000 * Millisecond // 秒
+	)
+```
 
 
 

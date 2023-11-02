@@ -69,7 +69,14 @@ func BubbleSort(arr *[]int) {
 ### 查找
 
 - 顺序查找
-- 二分查找(数组是有序的)
+- 二分查找(数组是有序的) [1, 8, 10, 100, 123]
+  - 从两头找中间, leftIndex, rightIndex
+  - 先找到中间的下标 middle = (leftIndex + rightIndex) / 2, middle 的值和目标值进行比较
+  - 如果arr[middle] > findVal, 向 leftIndex - (middle - 1) 范围找
+  - 如果arr[middle] < findVal, 向 (middle + 1) - rightIndex 范围找
+  - 如果 ==, 就找到了
+  - 上面的逻辑会递归
+  - 退出递归的条件: leftIndex > rightIndex
 
 
 

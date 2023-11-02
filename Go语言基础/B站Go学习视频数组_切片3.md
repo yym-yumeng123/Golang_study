@@ -75,19 +75,63 @@ for index, value := range arr {
 ```
 
 
+### 切片 slice
+
+- 切片是数组的一个引用, 因此切片是引用类型, 使用引用传递
+- 切片的使用和数组类似, 遍历切片, 访问切片的元素和长度`len(slice)`都一样
+- 切片的长度是可以变化的, 简单理解切边是一个可以动态变化数组
+- 定义切片 `var 变量名 []类型 -> var a []int`
+- `append 内置函数` 可以对切片动态追加
+  - 切片append操作的本质是对数组扩容
+  - go 底层会创建一个新的数组
+  - 将 slice 原来包含的元素拷贝到新的数组 newArr
+  - slice 创新引用到 newArr
+- `copy内置函数` 拷贝
+  - copy(p1, p2) 参数数据类型都是切片
+  - 参数数据空间是独立的
+
+![切片](../切片内存图.png)
+![](../append内存分析.png)
 
 
 
+**切片使用的三种方式**
+
+1. 定义一个切片, 然后让切片引用一个已经创建好的数组 `var slice = arr[startI:endI]`
+   - 从arr数组的start取到end, 不包含end
+   - 范围 [0-len(arr)]
+   - arr[0:end] 简写 arr[:end]
+   - arr[start:len(arr)] 简写 arr[start:?]
+   - arr[0:len(arr)] 简写 arr[:]
+2. 通过`make`来创建切片
+   - cap 是一个内置函数, 用于统计切片的容量, 最大可以存放多少个元素
+   - 切片定义完后, 还不能使用, 本身是一个空的, 需要让其引用到一个数组, make一个空间供切片使用
+   - 切片可以继续切片
+3. 定义一个切片,直接指定具体数组
+4. 1和2的区别: 
+   - 1是直接引用数组, 数组是实现存在的, 程序员可见
+   - 2是通过make创建的, 由切片底层维护, 程序员不可见
+
+```go
+// type 数据类型
+// len 大小
+// cap 指定切片容量
+var 切片名 []type = make([], len, [cap])
+
+// 3. 直接指定具体数组
+var slice2 []string = []string{"tom", "jack", "mary"}
+```
+
+**切片的遍历**
+
+1. for循环
+2. for-range
 
 
+**string和slice**
 
-
-
-
-
-
-
-
+- string 底层是一个 `byte`数组, 因此 string 可以进行切片处理
+- string 是不可变的, 不能通过 str[0] = 'z' 来修改字符串
 
 
 

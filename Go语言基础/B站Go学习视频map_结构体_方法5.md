@@ -163,4 +163,94 @@ type Monster struct {
   Age  int    `json:"age"`
 }
 ```
+
+---
+
+### 方法
+
+在某些情况下, 我们需要定义方法, 比如Person结构体: 除了一些字段外(name, age), Person
+结构体还有一些行为: 说话, 跑步..., 这时需要用到方法
+
+Golang中的`方法作用在指定的数据类型上`, 因此 `自定义类型, 都可以有方法`, 不仅仅 struct
+
+```go
+// 方法的声明和调用
+
+type A struct {
+	Num int
+}
+
+// func (a A) test() A结构体有一个方法, 名为 test
+// (a A) 体现test方法和A类型绑定的
+func (a A) test()  {
+  fmt.Print(a.Num)
+}
+
+
+type PersonM struct {
+  Name string
+}
+
+// 给Person类型绑定方法
+// test方法和PersonM类型绑定
+// p 这个形参由程序员指定, 非固定
+func (p PersonM) test() { // p表示那个Person变量调用,这个p就是它的副本
+  fmt.Println("test()", p.Name)
+}
+
+func main() {
+  var p PersonM
+  p.Name = "yym"
+  // test方法只能通过 Person类型的变量来调用, 不能直接调用, 不能使用其他类型来调用
+  p.test()
+}
+```
  
+方法的调用和传参机制
+
+- 方法的调用和传参机制和函数基本一致, 不同的是方法调用时, 会将调用方法的变量, 当做实参也传递给方法
+
+
+方法的声明和定义
+
+```go
+/**
+  参数列表: 表示方法输入
+  receiver type: 表示这个方法和type这个类型进行绑定, 该方法作用域 type类型
+    type 可以是结构体, 也可以是其他自定义类型
+  receiver: 就是type类型的一个变量
+  返回值列表: 返回的值, 可以多个
+  return语句不是必须得
+ */
+func (receiver type) methodName (参数列表) (返回值列表) {
+	方法体
+	return 返回值
+}
+```
+
+方法注意事项和细节
+
+- 结构体类型是值类型, 在方法调用, 遵循值类型的传递机制, 值拷贝
+- 希望在方法中, 修改结构体变量的值, 通过结构体指针的方式来处理
+- Golang中的`方法作用在指定的数据类型上`, 自定义类型, 都可以有方法
+- 方法的访问范围控制的规则, 和函数一样, 方法名首字母小写, 只能在本包访问, 大写, 可以在本包和其他包访问
+- 如果一个变量实现了 `String()` 方法, 那么 fmt.Println 会默认调用这个变量的 `String()` 进行输出
+
+
+
+```go
+// 自定义类型
+type integer int
+
+func (i integer) print() {
+	fmt.Println("i=", i)
+}
+```
+
+方法和函数的区别
+
+1. 调用方式不一样
+   - 函数: 函数名(实参列表)
+   - 方法: 变量.方法名(实参列表)
+2. 对于普通函数, 接受者为值类型时, 不能将指针类型的数据直接传递, 反之亦然
+3. 对于方法, 接受者为值类型时, 可以直接用指针类型的变量调用法法, 反过来也可以

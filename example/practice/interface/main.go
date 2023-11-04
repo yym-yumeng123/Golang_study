@@ -8,9 +8,13 @@ type Usb interface {
 	Stop()
 }
 
-type Phone struct{}
+type Phone struct {
+	name string
+}
 
-type Camera struct{}
+type Camera struct {
+	name string
+}
 
 // 让 Phone 实现 usb 接口的方法
 func (p Phone) Start() {
@@ -18,6 +22,9 @@ func (p Phone) Start() {
 }
 func (p Phone) Stop() {
 	fmt.Println("手机停止工作")
+}
+func (p Phone) Call() {
+	fmt.Println("手机打电话...")
 }
 
 // 让 camera 实现 Usb 的方法
@@ -36,14 +43,35 @@ type Computer struct{}
 func (c Computer) Working(usb Usb) {
 	// 通过 usb 接口变量来调用 Start Stop 方法
 	usb.Start()
+	// 如果 usb 指向 Phone. 调用 call 方法
+	// 类型断言
+	phone, ok := usb.(Phone)
+	fmt.Println(phone, ok)
+	if ok == true {
+		phone.Call()
+	}
 	usb.Stop()
 }
 
 func main() {
-	c := Computer{}
-	phone := Phone{}
-	camera := Camera{}
+	//c := Computer{}
+	//phone := Phone{}
+	//camera := Camera{}
+	//
+	//c.Working(phone)
+	//c.Working(camera)
 
-	c.Working(phone)
-	c.Working(camera)
+	// 多态数组
+	var usbArr [3]Usb
+	usbArr[0] = Phone{"小米"}
+	usbArr[1] = Phone{"华为"}
+	usbArr[2] = Camera{"sony"}
+
+	var c Computer
+
+	//遍历 usbArr
+	for _, v := range usbArr {
+		c.Working(v)
+	}
+	//fmt.Println(usbArr)
 }

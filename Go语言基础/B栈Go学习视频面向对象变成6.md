@@ -210,3 +210,132 @@ tv := TV{Goods{"电视机", 5000.00}, Brand{"孩儿", "山东"}}
 // &Good 实参的地址传给 指针类型
 tv1 := TV1{&Good{"电视机", 5000.00}, &Brand{"孩儿", "山东"}}
 ```
+
+---
+
+### 接口
+
+基本介绍
+
+interface 类型可以定义一组方法, 但是这些不需要实现, 并且interface 不能包含任何变量.
+到某个自定义类型(比如结构体)要使用的时候, 再根据具体情况把这些方法写出来
+
+基本语法
+
+```go
+// 接口里的所有方法都没有方法体, 即接口的方法都是没有实现的方法, 体现了多态和高内聚低耦合的思想
+// Golang中的接口, 不需要显式的视线, 只要一个变量, 含有接口类型的所有方法, 那么这个变量就实现了这个接口
+
+type 接口名 interface {
+	method1(参数列表) 返回值列表
+	method2(参数列表) 返回值列表
+	...
+}
+
+// 实现接口所有方法
+func (t 自定义类型) method1(参数列表) 返回值列表  {
+  // 方法实现
+}
+func (t 自定义类型) method2(参数列表) 返回值列表  {
+  // 方法实现
+}
+// ...
+```
+
+案例
+
+```go
+// 接口 Usb 定义了两个方法
+type Usb interface {
+	// 声明两个未实现的方法
+	Start()
+	Stop()
+}
+
+// Phone 结构体
+type Phone struct{}
+
+type Camera struct{}
+
+// 让 Phone 实现 usb 接口的方法, 实现了 Usb 接口
+func (p Phone) Start() {
+	fmt.Println("手机开始工作")
+}
+func (p Phone) Stop() {
+	fmt.Println("手机停止工作")
+}
+
+// 让 camera 实现 Usb 的方法, 实现了 usb 接口
+func (c Camera) Start() {
+	fmt.Println("相机开始工作")
+}
+func (c Camera) Stop() {
+	fmt.Println("相机停止工作")
+}
+
+// 计算机
+type Computer struct{}
+
+// 编写一个方法 Working, 接收一个 Usb 接口类型变量
+// 所谓实现了Usb接口, 就是指实现了 Usb 接口的所有方法
+func (c Computer) Working(usb Usb) {
+	// 通过 usb 接口变量来调用 Start Stop 方法
+	usb.Start()
+	usb.Stop()
+}
+
+func main() {
+	c := Computer{}
+	phone := Phone{}
+	camera := Camera{}
+
+	c.Working(phone)
+	c.Working(camera)
+}
+```
+
+**接口应用场景**
+
+现在有一个项目经理, 管理三个程序员, 开发一个软件, 为了控制和管理软件, 项目经理
+可以定义一些接口, 由程序员具体实现
+
+```go
+接口1 => 自定义类型1
+接口1 => 自定义类型2
+
+接口2 => 自定义类型3
+接口2 => 自定义类型4
+接口2 => 自定义类型5
+
+接口4 => 自定义类型5
+```
+最佳实践
+
+
+**接口注意事项和细节**
+
+1. 接口本身不能创建实例, 但是可以指向一个实现了该接口的自定义类型的变量
+2. 接口中的所有方法都没有方法体, 都是没有实现的方法
+3. 在Golang中, 一个自定义类型需要将某个接口的所有方法都实现, 我们说这个自定义类型实现了该接口
+4. 一个自定义类型只有实现了该接口, 才能将自定义类型的实例赋给接口类型
+5. 只要是自定义数据类型, 就可以实现接口, 不仅仅是结构体类型
+6. 一个自定义类型可以实现多个接口
+7. Golang接口中不能有任何变量
+8. 一个接口可以继承多个别的接口, 如果要实现A接口, 必须把B,C接口的方法页全部实现
+9. interface类型默认是个指针(引用类型), 如果没有初始化interface就使用, 会输出 nil
+10. 空接口 interface{}, 没有任何方法, 所以所有类型都实现了空接口, 可以把任何变量赋值给空接口
+
+```go
+// 5
+type Aint interface {
+	say()
+}
+
+type interger int
+
+func (i interger) say()  {
+
+}
+
+type T interface{}
+```

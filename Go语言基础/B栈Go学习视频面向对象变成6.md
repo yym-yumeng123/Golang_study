@@ -102,6 +102,8 @@ func (a Account) WithDraw(money float64, pwd string)  {
 
 ### 面向对象三大特性
 
+封装
+
 1. 封装(encapsulation): 就是把抽象出的字段和对字段的操作封装在一起, 数据被保护在内部,程序的其它包只有通过被授权的操作, 才能对字段进行操作
 2. 优点: 隐藏实现细节; 可以对数据进行验证, 保证安全合理
 3. 体现封装: 对结构体中的属性进行封装; 通过方法包实现封装
@@ -126,3 +128,85 @@ func (val 结构体类型名) GetXxx() {
 }
 ```
 
+继承
+
+- 继承可以解决代码复用
+- 当多个结构体总在相同的属性和方法时, 可以从这些结构体中抽象出结构体, 在该结构体定义相同的属性和方法
+- 其它的结构体不需要重新定义这些属性和方法, 只需嵌套一个 `匿名结构体`
+- 也就是说: 在Golang中, 如果一个 struct 嵌套了另一个匿名结构体的字段和方法, 从而实现了继承特性
+
+```go
+// 匿名结构体语法
+type Goods struct {
+	Name string
+}
+type Book struct {
+	Goods // 嵌套匿名结构体
+}
+var b Book
+b.Goods.Name
+b.Name
+
+// 就近原则
+
+
+// 结构体嵌多个匿名结构体, 两个匿名结构体有相同的字段和方法, 访问时, 需指定匿名结构体名字
+type A struct {
+  Name string
+}
+type B struct {
+  Name string
+}
+type C struct {
+	A
+	B
+}
+
+var c C
+c.A.Name
+c.B.Name
+```
+
+一个 struct嵌套了一个有名结构体, 这种模式就是组合, 如果是组合关系, 那么在访问组合的结构体
+的字段或方法时, 必须带上结构体的名字
+
+```go
+type A struct {
+	Name string
+	Age int
+}
+
+type C struct {
+	a A
+}
+
+var c C
+c.a.Name
+```
+
+嵌套匿名结构体后, 也可以在创建结构体变量时, 直接指定匿名结构体字段的值
+
+```go
+type Goods struct {
+	Name string
+	Price float64
+}
+
+type Brand struct {
+	Name string
+	Address string
+}
+
+type TV struct {
+	Goods
+	Brand
+}
+type TV1 struct {
+	*Goods
+	*Brand
+}
+
+tv := TV{Goods{"电视机", 5000.00}, Brand{"孩儿", "山东"}}
+// &Good 实参的地址传给 指针类型
+tv1 := TV1{&Good{"电视机", 5000.00}, &Brand{"孩儿", "山东"}}
+```

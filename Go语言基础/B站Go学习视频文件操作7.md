@@ -62,3 +62,61 @@ func PathExists(path string) (bool, error) {
 拷贝文件
 
 `io.Copy(dst Writer, src Reader) (writte int64, err error)`
+
+
+---
+
+
+### 命令行参数
+
+基本介绍
+
+`os.Args` 是一个string 的切片 , 用来存储所有的命令行, 比较原生, 解析参数不是特别的方便, 特别是带有指定参数形式的命令行
+
+go 另外提供了 `flag` 包, 可以方便的解析命令行参数, 参数顺序可以随意
+
+
+### json 基本介绍
+
+一种轻量级的数据交换格式, 可以序列化和反序列化
+
+JSON 键值对用来保存数据, 都用双引号包裹
+
+1. web编程中的应用, 数据传输使用 json
+2. tcp编程中的应用, 例如Go写了聊天系统
+
+
+结构体 map 切片的序列化
+
+```go
+// 序列化: 有key-value结构的数据类型(结构体 map, 切片) 序列化成 json 字符串的操作
+
+dataMap, _ := json.Marshal(map)
+
+// 反序列化: 将json字符串反序列化成对应的数据类型
+// 保证反序列化后的数据类型和原来序列化前的数据类型一致
+err := json.Unmarshal([]byte(str), &monster)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

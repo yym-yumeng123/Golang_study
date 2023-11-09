@@ -23,3 +23,42 @@ Go程序(内存) -> 输出流(写文件) -> 文件
 
 1. 打开一个文件, `os.Open(name string) (*File, error)`
 2. 关闭一个文件 `File.close()`
+
+读文件操作应用实例
+
+1. 读取文件的内容并显示在终端(带缓冲区的方式), 使用 `os.Open, file.Close bufio.NewReader(), reader.ReadString`函数和方法
+2. 读取文件显示在终端(使用`os`一次性整个文件读入到内存中), 适用于文件不大的情况
+   - `os.ReadFile`
+
+写文件操作应用实例
+
+`OpenFile(name string, flag int, perm FileMode) (file *File, err error)`
+
+- `os.OpenFile` 是一个更一般性的文件打开函数
+- flag 参数: 文件打开模式 只读/只写/读写等
+- perm 参数: 权限控制 linux/unix 下面用
+
+判断文件是否存在
+
+golang 判断文件或文件夹是否存在的方法为使用 `os.Stat()`
+
+- 返回的错误为 nil, 文件或文件夹存在
+- 返回的错误类型使用 `os.IsNotExit()` 为true, 说明不存在
+- 返回的错误为其它类型,不确定是否存在
+
+```go
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat()
+	if err == nil {
+		return  true, nil
+	}
+	if os.IsNotExit(err) {
+		return false, nil
+}
+	return false err
+}
+```
+
+拷贝文件
+
+`io.Copy(dst Writer, src Reader) (writte int64, err error)`

@@ -198,3 +198,36 @@ channel 支持 `for-range` 方式遍历
 **阻塞**
 
 读快写慢, 写慢就会阻塞
+
+
+### channel 使用的细节和注意事项
+
+1. channel可以声明为只读, 或者只写
+2. 使用 select 可以解决从管道取数据的阻塞问题
+3. goroutine 中使用 recover, 解决协程中出现panic, 程序崩溃问题
+
+
+```go
+// 默认情况, 管道双向, 可读可写
+var chan1 chan int
+
+// 只写
+var chan1 chan<- int
+chan1 = make(chan int, 3)
+
+// 只读
+var chan1 <-chan int
+
+
+// select
+for {
+	select {
+	case v:=<-chan
+	
+	case v:=<-stringChan
+	
+	default:
+		fmt.Print("")
+}
+}
+```

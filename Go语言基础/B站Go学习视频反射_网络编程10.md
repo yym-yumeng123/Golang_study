@@ -129,7 +129,9 @@ ip地址有 ipv4(32位) `4个字节` 或者ipv6(128位), 可以通过 ipconfig �
 
 
 
+### Redis
 
+Redis(Remote Dictionary Server 远程字典服务器) 是 NoSQL 数据库, 不是传统的关系型数据库
 
 
 

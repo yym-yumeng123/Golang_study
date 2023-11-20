@@ -9,20 +9,21 @@ import "fmt"
 3. arrat 表示要排序的数组
 */
 func QuickSort(left int, right int, array *[6]int) {
-	l := left
-	r := right
+	l := left  // 0
+	r := right // 5
 	// pivot 中轴
 	pivot := array[(left+right)/2]
+	fmt.Println(pivot, (left+right)/2)
 	temp := 0
 
 	for l < r {
 		// 先从中间的左边 找到比 pivot 大的值, 只要小于, 就一直找下标的下一个值
 		for array[l] < pivot {
-			l++
+			l++ // 第一次 1
 		}
 		// 从中间的右边 找到 小于 pivot 的值,
 		for array[r] > pivot {
-			r--
+			r-- // 第一次 4
 		}
 		// l >= r, 表明本次分解任务完成
 		if l >= r {

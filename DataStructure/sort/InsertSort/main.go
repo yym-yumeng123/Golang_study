@@ -9,7 +9,7 @@ func InsertSort(arr *[5]int) {
 		insertVal := arr[i]  // 第 i 次无序的元素
 		insertIndex := i - 1 // 下标
 
-		// 从大到小 插入的值 > 要插入的值
+		// 从大到小 插入的值 > 有序表
 		for insertIndex >= 0 && arr[insertIndex] < insertVal {
 			arr[insertIndex+1] = arr[insertIndex] // 数据后移
 			insertIndex--

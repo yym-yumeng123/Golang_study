@@ -2,17 +2,29 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"html/template"
 	"net/http"
+	"time"
 )
 
 type Article struct {
-	Title string
-	Desc  string
+	Title string `json:"title"`
+	Desc  string `json:"desc"`
+}
+
+// 自定义时间戳转换日期
+func UnixToTime(timestamp int) string {
+	t := time.Unix(int64(timestamp), 0)
+	return t.Format("2006-01-02 15:04:05")
 }
 
 func main() {
 	// 创建一个默认的路由引擎
 	r := gin.Default()
+	// 自定义模板函数
+	r.SetFuncMap(template.FuncMap{
+		"UnixToTime": UnixToTime,
+	})
 	r.LoadHTMLGlob("template/*") // 配置模板路径
 	// 配置路由
 	r.GET("/ping", func(c *gin.Context) {
@@ -60,8 +72,14 @@ func main() {
 	})
 
 	r.GET("/html", func(context *gin.Context) {
+		news := &Article{
+			Title: "标题1",
+			Desc:  "我是详情1",
+		}
 		context.HTML(http.StatusOK, "news.html", gin.H{
 			"title": "我是后台数据",
+			"news":  news,
+			"date":  time.Now(),
 		})
 	})
 

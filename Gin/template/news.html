@@ -5,7 +5,29 @@
     <title>Title</title>
 </head>
 <body>
+
+
 <h2>我是一个新闻页面</h2>
+<!--输出 {{ .title }}  -->
 <p>{{.title}}</p>
+<br>
+<h3>{{.news.Title}}</h3>
+
+<br/>
+
+<!--定义变量-->
+{{ $t := .title }}
+
+<h4>{{$t}}</h4>
+
+
+
+<!--预定义函数-->
+<!--获取长度-->
+<!--{{len .title }}-->
+<div>{{UnixToTime .date}}</div>
+
+
 </body>
+
 </html>

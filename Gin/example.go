@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gin/models"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"net/http"
@@ -12,18 +13,12 @@ type Article struct {
 	Desc  string `json:"desc"`
 }
 
-// 自定义时间戳转换日期
-func UnixToTime(timestamp int) string {
-	t := time.Unix(int64(timestamp), 0)
-	return t.Format("2006-01-02 15:04:05")
-}
-
 func main() {
 	// 创建一个默认的路由引擎
 	r := gin.Default()
 	// 自定义模板函数
 	r.SetFuncMap(template.FuncMap{
-		"UnixToTime": UnixToTime,
+		"UnixToTime": models.UnixToTime,
 	})
 	r.LoadHTMLGlob("template/*") // 配置模板路径
 	// 配置路由

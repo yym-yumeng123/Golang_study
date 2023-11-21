@@ -7,6 +7,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.LoadHTMLGlob("temp/*")
 	routes.AdminRoutesInit(r)
 	routes.ApiRoutesInit(r)
 	routes.DefaultRoutesInit(r)

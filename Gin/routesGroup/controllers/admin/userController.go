@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path"
 )
 
 type UserController struct {
@@ -32,6 +33,12 @@ func (u *UserController) DoUpload(c *gin.Context) {
 	//log.Panicln(file.Filename, "我是log")
 	dst := "./static/" + file.Filename
 	if err == nil {
+		// 获取后缀名
+		extName := path.Ext(file.Filename)
+		allowExtMap := map[string]bool{
+			".jpg": true,
+		}
+		fmt.Println(extName, allowExtMap)
 		// 上传文件至指定的完整文件路径
 		c.SaveUploadedFile(file, dst)
 	}

@@ -293,3 +293,37 @@ on lesson.id=lesson_student.lesson_id and lesson_student.student_id = 1;
 select * from lesson right join lesson_student
 on lesson.id=lesson_student.lesson_id and lesson_student.student_id = 1;
 ```
+
+
+### 索引
+
+MySQL 索引的建立对于 MySQL的高效运行是很重要的, 索引可以大大提高检索速度
+
+如果没有索引, 执行查询的时候必须从第一条记录开始, 扫描整个表的记录, 直到符合要求的记录.如果
+有了索引, mysql 无需扫描任何记录即可顺序找到目标记录的位置. 简单来说, 索引就是提高查找速度, 数据量越多, 效果越明显
+
+MySQL中常见的索引
+
+- 普通索引
+- 唯一索引 => 字段名称不能重复
+- 全文索引
+- 空间索引 Spatial
+
+```mysql
+# 设置普通索引
+
+# class(name) 表的字段 index_name 索引名称
+create index index_name on my_table(name);
+
+alter table table_name add index index_name(name)
+alter table table_name drop index index_name
+
+# 查看索引 \G 格式化输出
+show index from class\G; 
+
+# 删除索引
+drop index index_name on class;
+
+# 创建唯一索引  (主键是一种唯一索引)
+create unique index index_name on table(name)
+```

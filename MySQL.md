@@ -327,3 +327,45 @@ drop index index_name on class;
 # 创建唯一索引  (主键是一种唯一索引)
 create unique index index_name on table(name)
 ```
+
+### 事务
+
+事务处理用来维护数据库的完整性, 保证成批的 SQL 语句要么全部执行, 要么全不执行.
+
+```mysql
+# begin 开始一个事务
+# rollback 事务回滚
+# commit 事务确认
+
+# 转账操作
+begin;
+update users set balance = balance - 100 where username="小王";
+update users set balance = balance + 100 where username="小李";
+commit;
+```
+
+### 锁
+
+Mysql 中的锁有: 表级锁和行级锁
+
+**表级锁**
+
+1. 添加读锁
+
+可以并发读,但是不能并发写, 读锁期间, 没释放锁之前不能进行写操作
+
+```mysql
+# 确保无人对这个记录进行 update 和 delete 操作
+lock table user read; # 给表设置一个读锁
+     
+unlock tables;
+```
+
+2. 添加写锁
+
+只有锁表的用户可以进行读写操作, 其它用户不行 (并发下对商品库存的操作)
+
+```mysql
+lock table user write;
+unlock tables;
+```

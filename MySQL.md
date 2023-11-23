@@ -239,3 +239,57 @@ Mysql 别名 `as`
 select name as a from class;
 select min(score) as minscore from class;
 ```
+
+
+### MySQL 表与表之间的关系
+
+- 一对一 例如: 一个文章只能属于一个分类
+- 一对多 例如: 文章分类 对文章, 一个分类可以有多个文章
+- 多对多 例如: 一个学生可以选择多个课程, 一个课程可以被多个学生选择
+
+MySQL `笛卡尔积连接, 内连接, 左外连接, 右外连接`
+
+查询数据的时候能不用连接语句尽量不用, 笛卡尔积连接查询较慢, 项目中用的多的是内连接
+
+```mysql
+# 1. 查找文章显示文章分类
+
+# 笛卡尔积连接
+select article.id, article.title, article.state, article_cate as cate 
+from article, article_cate where acticle.cate_id=acticle_cate.id
+
+# 内连接 inner join ... on
+# select 后面要查询的内容
+select article.id, article.title, article.state, article_cate as cate
+from article inner join article_cate on acticle.cate_id=acticle_cate.id
+```
+
+```mysql
+# 多对多, 可以建一张 中间表 
+# 学生和课程 lesson_id student_id
+# A 同学选修了 那些课程
+
+# 查询A同学选修的课程 id
+select lesson_id from lesson_student where student_id = 1;
+# 查询出课程id 对应的课程 简单查询 in
+select * from lesson where id in (select lesson_id from lesson_student where student_id = 1);
+
+# 内连接查询
+select lesson.id, lesson.name from lesson inner join lesson_student
+on lesson.id=lesson_student.lesson_id and lesson_student.student_id = 1;
+
+
+# 课程被那些同学选修了, 课程为1的学生
+select student_id from lesson_student where lesson_id = 1;
+select * from student where id in (select student_id from lesson_student where lesson_id = 1);
+```
+
+```mysql
+# 左外连接 left join on => lesson 表所有信息输出, lesson_student 表不满足条件都是空
+select * from lesson left join lesson_student
+on lesson.id=lesson_student.lesson_id and lesson_student.student_id = 1;
+
+# 右外连接 right join ... on
+select * from lesson right join lesson_student
+on lesson.id=lesson_student.lesson_id and lesson_student.student_id = 1;
+```

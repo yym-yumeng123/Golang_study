@@ -17,6 +17,8 @@ func AdminRoutesInit(r *gin.Engine) {
 			fmt.Println("aaaa")
 		}, user.Index)
 		adminRoutes.GET("/user/add", user.Add)
+		adminRoutes.GET("/user/edit", user.Edit)
+		adminRoutes.GET("/user/delete", user.Delete)
 		adminRoutes.POST("/user/doUpload", user.DoUpload)
 	}
 }

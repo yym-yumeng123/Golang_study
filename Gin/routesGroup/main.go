@@ -11,6 +11,7 @@ func main() {
 	routes.AdminRoutesInit(r)
 	routes.ApiRoutesInit(r)
 	routes.DefaultRoutesInit(r)
+	routes.ArticleRoutesInit(r)
 
 	r.Run()
 }

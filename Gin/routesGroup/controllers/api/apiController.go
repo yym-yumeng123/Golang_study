@@ -18,6 +18,10 @@ func (n NavJson) TableName() string {
 type AController struct {
 }
 
+func (*AController) error(c *gin.Context) {
+	c.String(200, "失败")
+}
+
 func (a *AController) Index(c *gin.Context) {
 	// 所有数据
 	navList := []models.Nav{}
@@ -69,6 +73,39 @@ func (a *AController) Index(c *gin.Context) {
 	})
 }
 
+// 学习事务
 func (a *AController) List(c *gin.Context) {
+	// 再唠叨一下，事务一旦开始，你就应该使用 tx 处理数据
+	tx := models.DB.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			// 遇到错误回滚事务
+			tx.Rollback()
+			// 转账失败
+			a.error(c)
+			return
+		}
+	}()
+
+	// 1号
+	nav1 := models.Nav{Id: 1}
+	tx.Find(&nav1)
+	nav1.Sort = nav1.Sort + 1
+	if err := tx.Save(&nav1); err != nil {
+		tx.Rollback()
+		return
+	}
+
+	// 2号
+	nav2 := models.Nav{Id: 2}
+	tx.Find(&nav2)
+	nav2.Sort = nav2.Sort + 1
+	if err := tx.Save(&nav2); err != nil {
+		tx.Rollback()
+	}
+
+	tx.Commit()
+
 	c.String(http.StatusOK, "我是一个api接口-list")
 }

@@ -19,6 +19,7 @@ func init() {
 		SkipDefaultTransaction: true, // 事务配置
 		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
+	DB.Migrator().CreateTable()
 	DB.Logger.LogMode(logger.Silent)
 	if err != nil {
 		fmt.Println(err)

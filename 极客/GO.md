@@ -547,3 +547,103 @@ const (
 )
 ```
 
+
+### 定长数组到变长切片
+
+1. 数组有那些基本特性
+
+值类型
+
+Go 语言的数组是一个长度固定的、由同构类型元素组成的连续序列
+
+```go
+// Go 编译器需要在编译阶段就知道数组类型的长度
+// 长度为 N, 类型为 T
+var arr [N]T
+
+var arr1 [5]int
+var arr2 [6]int
+arr1 != arr2
+```
+
+数组类型不仅是逻辑上的连续序列, 在实际内存分配也占据一整块内存
+
+```go
+var arr = [6]int{1, 2, 3, 4, 5, 6}
+fmt.Println("数组长度：", len(arr))           // 6
+// 数组变量的总大小 64位平台 6 * 8
+fmt.Println("数组大小：", unsafe.Sizeof(arr)) // 48
+
+var arr1 [6]int // [0 0 0 0 0 0]
+
+var arr2 = [6]int {
+11, 12, 13, 14, 15, 16,
+} // [11 12 13 14 15 16]
+
+var arr3 = [...]int {
+21, 22, 23,
+} // [21 22 23]
+fmt.Printf("%T\n", arr3) // [3]int
+```
+
+2. 多维数组
+
+```go
+var myArr [2][3][4]int
+```
+
+3. 切片
+
+切片声明仅仅是少了一个“长度”属性
+
+```go
+var nums = []int{1, 2, 3, 4, 5, 6}
+fmt.Println(len(nums)) // 6
+
+// 动态地向切片中添加元素
+nums = append(nums, 7) // 切片变为[1 2 3 4 5 6 7]
+fmt.Println(len(nums)) // 7
+```
+
+4. Go是如何实现切片类型的
+
+```go
+// Go 编译器会自动为每个新创建的切片, 创建一个底层数组
+type Slice struct {
+	array unsafe.Pointer // 指向底层数组的指针
+	len   int // 切片的长度, 当前元素的个数
+	cap   int // 底层数组的长度, 切片的最大容量 cap > len
+}
+
+// 方法一: make 函数
+s1 := make([]byte, 6, 10) // 10为cap值, 底层数组长度 6为去哦们的初始长度
+s1 := make([]byte, 6) // cap = len = 6
+
+// 方法二: array[low:high:max] 基于已存在的数组, 修改切片会修改数组
+// max 默认省略, 默认值数组的长度
+arr := [10]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+// 起始元素从 low 所标识的下标值开始
+// 切片的长度（len）是 high - low，它的容量是 max - low
+sl := arr[3:7:9]
+```
+
+5. 切片的动态扩容
+
+通过 append 操作向切片追加数据的时候，如果这时切片的 len 值和 cap 值是相等的，
+也就是说切片底层数组已经没有空闲空间再来存储追加的值了，
+Go 运行时就会对这个切片做扩容操作，来保证切片始终能存储下追加的新值
+
+```go
+var s []int
+s = append(s, 11) 
+fmt.Println(len(s), cap(s)) //1 1
+s = append(s, 12) 
+fmt.Println(len(s), cap(s)) //2 2
+s = append(s, 13) 
+fmt.Println(len(s), cap(s)) //3 4
+s = append(s, 14) 
+fmt.Println(len(s), cap(s)) //4 4
+```
+
+
+### 原生 map 类型

@@ -647,3 +647,124 @@ fmt.Println(len(s), cap(s)) //4 4
 
 
 ### 原生 map 类型
+
+map 是 Go 语言提供的一种抽象数据类型，它表示`一组无序的键值对`
+
+```go
+// key 的类型必须支持“==”和“!=”两种比较操作符
+// 函数类型、map 类型自身，以及切片类型是不能作为 map 的 key 类型的
+map[key_type]value_type
+
+map[string]int
+map[int]int
+```
+
+map 变量的声明和初始化
+
+```go
+var m map[string]int // 默认值 nil
+
+// map 类型，因为它内部实现的复杂性，无法“零值可用”
+var m map[string]int // m = nil
+// 发生运行时异常：panic: assignment to entry in nil map
+m["key"] = 1
+
+// 方法一: 使用字面量
+m := map[int]string{} // Go 允许省略字面值中的元素类型
+// 方法二: make函数为 map 类型变量进行初始化
+m1 := make(map[int]string) // 未指定初始容量
+m1 := make(map[int]string, 8) // 指定初始容量
+```
+
+map 基本操作
+
+对同一 map 做多次遍历的时候，每次遍历元素的次序都不相同
+
+map 引用类型
+
+```go
+// 插入新的键值对
+m := make(map[int]string)
+m[1] = "value1"
+m[2] = "value2"
+m[3] = "value3" // 相同key 新值会覆盖旧值
+
+// 获取键值对数量
+len(m)
+
+// 查找和数据读取
+m := make(map[string]int)
+v, ok := m["key1"]
+if !ok {
+// "key1"不在map中
+}
+// "key1"在map中，v将被赋予"key1"键对应的value
+
+// 删除
+m := map[string]int {
+"key1" : 1,
+"key2" : 2,
+}
+
+fmt.Println(m) // map[key1:1 key2:2]
+delete(m, "key2") // 删除"key2"
+fmt.Println(m) // map[key1:1]
+```
+
+
+### 结构体
+
+```go
+// 定义一个空结构体
+type Empty struct {} // 不包含任何字段的空结构体类型
+
+var s Empty
+println(unsafe.Sizeof(s)) // 0
+
+// 使用其它结构体作为自定义结构体中字段的类型
+type Person struct {
+  Name string
+  Phone string
+  Addr string
+}
+
+type Book struct {
+  Title string
+  Author Person
+  ... ...
+}
+
+var book Book
+println(book.Author.Phone)
+
+// 直接使用类型 嵌入字段
+type Book struct {
+  Title string
+  Person
+  ... ...
+}
+var book Book
+println(book.Person.Phone) // 将类型名当作嵌入字段的名字
+println(book.Phone)        // 支持直接访问嵌入字段所属类型中字段
+
+
+// 结构体声明 初始化
+type Book struct {}
+var book Book
+var book Book{}
+book := Book{}
+
+type Book struct {
+  Title string              // 书名
+  Pages int                 // 书的页数
+  Indexes map[string]int    // 书的索引
+}
+
+// 使用复合字面值 按顺序依次给每个结构体字段进行赋值
+var book = Book{"The Go", 700, make(map[string]int)}
+var t = T{
+  F2: "hello",
+  F1: 11,
+  F4: 14,
+}
+```

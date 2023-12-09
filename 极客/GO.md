@@ -768,3 +768,155 @@ var t = T{
   F4: 14,
 }
 ```
+
+### 函数是 "一等公民"
+
+```go
+// 关键字 func
+// 函数名 funcName
+// param1...n 参数列表
+// returnType 返回列表类型
+func funcName(param1, param2, ...paramN) (returnType) {}
+
+// 表述函数类型
+func(io.Writer, string, ...interface{}) (int, error)
+
+// 函数签名是相同的
+func (a int, b string) (results []string, err error)
+func (c int, d string) (sl []string, err error)
+```
+
+Go 语言中，函数参数传递采用是值传递的方式
+
+**函数支持多返回值**
+
+```go
+func foo()                       // 无返回值
+func foo() error                 // 仅有一个返回值
+func foo() (int, string, error)  // 有2或2个以上返回值
+```
+
+**函数是一等公民**
+
+- Go函数可以存储在变量中
+- 支持在函数内创建并通过返回值返回
+- 作为参数传入函数
+- 拥有自己的类型
+
+**结合多返回值进行错误处理**
+
+error 类型与错误值构造
+
+```go
+// error 接口是 Go 原生内置的类型
+type error interface {
+	Error() string
+}
+```
+
+难道为了构造一个错误值，我们还需要自定义一个新类型来实现 error 接口吗？
+
+在标准库中提供了两种方便 Go 开发者构造错误值的方法： `errors.New` 和 `fmt.Errorf`
+
+- 统一了错误类型
+- 错误是值 可以像整型值那样对错误 `== !=` 逻辑比较
+- 易扩展, 支持自定义错误上下文
+
+```go
+err := errors.New("demo error")
+errWithCtx = fmt.Errorf("index %d", i)
+```
+
+**Go错误处理的策略**
+
+- 透明错误处理策略
+- "哨兵"错误处理策略
+- 错误值类型检视策略
+- 错误行为特征检视策略
+  - 将某个包中的错误类型归类，统一提取出一些公共的错误行为特征，并将这些错误行为特征放入一个公开的接口类型中
+
+```go
+// 最常见的错误处理策略
+err := doSomething()
+if err != nil {
+    // 不关心err变量底层错误值所携带的具体上下文信息
+    // 执行简单错误处理逻辑并返回
+    ... ...
+    return err
+}
+
+func doSomething(...) error {
+    ... ...
+    return errors.New("some error occurred")
+}
+
+// 哨兵
+data, err := b.Peek(1)
+    if err != nil {
+        switch err.Error() {
+        case "bufio: negative count":
+        // ... ...
+        return
+        case "bufio: buffer full":
+        // ... ...
+        return
+        case "bufio: invalid use of UnreadByte":
+        // ... ...
+        return
+        default:
+        // ... ...
+        return
+    }
+}
+
+// $GOROOT/src/bufio/bufio.go
+var (
+    ErrInvalidUnreadByte = errors.New("bufio: invalid use of UnreadByte")
+    ErrInvalidUnreadRune = errors.New("bufio: invalid use of UnreadRune")
+    ErrBufferFull        = errors.New("bufio: buffer full")
+    ErrNegativeCount     = errors.New("bufio: negative count")
+)
+
+
+```
+
+**让函数更简洁健壮**
+
+健壮三不要原则
+
+- 不要相信任何外部输入的参数
+- 不要忽略任何一个错误
+- 不要假定异常不会发生
+
+`panic`
+
+Go 语言中，异常这个概念由 panic 表示
+
+panic 指的是 Go 程序在运行时出现的一个异常情况。
+如果异常出现了，但没有被捕获并恢复，Go 程序的执行就会被终止
+
+无论在哪个 Goroutine 中发生未被恢复的 panic，整个程序都将崩溃退出
+
+```go
+panic("panic occurs in bar")
+```
+
+Go 也提供了捕捉 panic 并恢复程序正常执行秩序的方法，
+我们可以通过 `recover 函数`来实现这一点
+
+```go
+func bar() {
+    defer func() {
+        if e := recover(); e != nil {
+            fmt.Println("recover the panic:", e)
+        }
+    }()
+
+    println("call bar")
+    panic("panic occurs in bar")
+    zoo()
+    println("exit bar")
+}
+```
+
+### 方法

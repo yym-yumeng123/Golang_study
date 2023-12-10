@@ -135,8 +135,8 @@ package main
 import "fmt"
 
 func main() {
-   var  ptr *int
-   fmt.Printf("ptr 的值为 : %x\n", ptr  )
+ var ptr *int
+ fmt.Printf("ptr 的值为 : %x\n", ptr )
 }
 ```
 
@@ -234,33 +234,33 @@ package main
 import "fmt"
 
 type Books struct {
-   title string
-   author string
-   subject string
-   book_id int
+ title string
+ author string
+ subject string
+ book_id int
 }
 
 func main() {
-   var Book1 Books        /* 声明 Book1 为 Books 类型 */
-   var Book2 Books        /* 声明 Book2 为 Books 类型 */
+ var Book1 Books    /* 声明 Book1 为 Books 类型 */
+ var Book2 Books    /* 声明 Book2 为 Books 类型 */
 
-   /* book 1 描述 */
-   Book1.title = "Go 语言"
-   Book1.author = "www.runoob.com"
-   Book1.subject = "Go 语言教程"
-   Book1.book_id = 6495407
+ /* book 1 描述 */
+ Book1.title = "Go 语言"
+ Book1.author = "www.runoob.com"
+ Book1.subject = "Go 语言教程"
+ Book1.book_id = 6495407
 
-   /* book 2 描述 */
-   Book2.title = "Python 教程"
-   Book2.author = "www.runoob.com"
-   Book2.subject = "Python 语言教程"
-   Book2.book_id = 6495700
+ /* book 2 描述 */
+ Book2.title = "Python 教程"
+ Book2.author = "www.runoob.com"
+ Book2.subject = "Python 语言教程"
+ Book2.book_id = 6495700
 
-   /* 打印 Book1 信息 */
-   printBook(Book1)
+ /* 打印 Book1 信息 */
+ printBook(Book1)
 
-   /* 打印 Book2 信息 */
-   printBook(Book2)
+ /* 打印 Book2 信息 */
+ printBook(Book2)
 }
 
 func printBook( book Books ) {
@@ -288,4 +288,54 @@ struct_pointer = &Book1
 
 // 使用结构体指针访问结构体成员, 使用 . 操作符
 struct_pointer.title
+```
+
+```go
+// 结构体自引用, 使用指针
+type Node struct {
+	left  *Node
+	right *Node
+}
+
+type Header map[string][]int
+
+var a = string(10) // type(value) 类型转换
+
+// 结构体
+func structExample() {
+	// sdk1 是 *sdkHttpServer 指针
+	sdk1 := &sdkHttpServer{}
+
+	// 实例
+	sdk2 := sdkHttpServer{}
+
+	// sdk3 是 *sdkHttpServer
+	sdk3 := new(sdkHttpServer)
+
+	// 这样声明, Go 就帮你分配好内存, 不用担心空指针
+	var sdk4 sdkHttpServer
+
+	// 就是一个指针
+	var sdk5 *sdkHttpServer // nil
+
+	// 赋值, 初始化
+	sdk6 := sdkHttpServer{Name: "yym"}
+	sdk7 := sdkHttpServer{"yym"}
+
+	println(sdk1, sdk2, sdk3, sdk4, sdk5, sdk6, sdk7)
+}
+
+// 指针
+func Pointer() {
+	// 指针用 * 表示, &表示取地址
+	var p *sdkHttpServer = &sdkHttpServer{}
+	// 解引用, 得到结构体
+	var p1 sdkHttpServer = *p
+
+	// 只是声明, 但没有使用
+	var p2 *sdkHttpServer
+
+	fmt.Println(p1, p2)
+}
+
 ```

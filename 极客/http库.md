@@ -68,3 +68,15 @@ func (c Context) SystemErrorJson(resp any) error {
 	return c.WriteJson(http.StatusInternalServerError, resp)
 }
 ```
+
+### Http Server - AOP 
+
+- AOP 横向关注点, 一般用于解决 Log tracing  熔断, 限流等
+- filter: 希望请求在真正被处理之前经过一大堆的 filter
+
+### 最简单的路由数
+
+- 不考虑路径参数问题, 只支持静态路由
+- 不考虑 http method
+- 不考虑性能问题
+- 不支持路由匹配

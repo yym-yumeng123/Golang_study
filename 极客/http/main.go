@@ -95,7 +95,9 @@ func main() {
 	//server.Route("/header", header)
 	//server.Route("/wholeUrl", wholeUrl)
 	//server.Route("/form", form)
-	server.Route("/start", SignUp)
-
-	http.ListenAndServe(":8080", nil)
+	server.Route(http.MethodGet, "/start", SignUp)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
 }

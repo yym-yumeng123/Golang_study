@@ -12,32 +12,34 @@ import (
  * 尽量用接口, 以实面向接口编程
  */
 type Server interface {
-	// Route 设定一个路由, 命中该路由 执行 handleFunc 代码
-	Route(method string, pattern string, handleFunc func(c *Context))
+	Routable
 	// Start 启动我们的服务器
 	Start(address string) error
 }
 
 // 结构体
 type sdkHttpServer struct {
-	Name string
+	Name    string
+	handler Handler
 }
 
 // Route 注册路由
-func (s *sdkHttpServer) Route(method string, pattern string, handleFunc func(ctx *Context)) {
-	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
-		ctx := NewContext(w, r)
-		handleFunc(ctx)
-	})
+func (s *sdkHttpServer) Route(
+	method string,
+	pattern string,
+	handleFunc func(ctx *Context)) {
+	s.handler.Route(method, pattern, handleFunc)
 }
 
 func (s *sdkHttpServer) Start(address string) error {
+	http.Handle("/", s.handler)
 	return http.ListenAndServe(address, nil)
 }
 
 func NewHttpServer(name string) Server {
 	return &sdkHttpServer{
-		Name: name,
+		Name:    name,
+		handler: NewHandlerBasedOnMap(),
 	}
 }
 

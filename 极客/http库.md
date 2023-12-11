@@ -80,3 +80,10 @@ func (c Context) SystemErrorJson(resp any) error {
 - 不考虑 http method
 - 不考虑性能问题
 - 不支持路由匹配
+
+### 优雅退出
+
+- 监听系统信号
+- channel 与 select
+- Hook 设计
+- 同步等待与超时

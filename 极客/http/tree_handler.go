@@ -19,7 +19,7 @@ type node struct {
 	handler HandlerFunc
 }
 
-func (h HandlerBaseOnTree) ServeHTTP(c *Context) {
+func (h *HandlerBaseOnTree) ServeHTTP(c *Context) {
 	handler, found := h.findRouter(c.R.URL.Path)
 	if !found {
 		c.W.WriteHeader(http.StatusNotFound)

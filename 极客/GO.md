@@ -64,7 +64,7 @@ go 1.21.0
 require github.com/sirupsen/logrus v1.8.1
 ```
 
-上面我用了前端类比, 是为了更方便的理解, 当然了 go 和 node 包的管理方式完全不同
+上面我用了前端类比, 是为了更方便地理解, 当然了 go 和 node 包的管理方式完全不同
 
 1. 为当前 module 添加一个依赖
 
@@ -101,7 +101,7 @@ go get github.com/sirupsen/logrus@v1.7.1
 
 3. 添加一个主版本号大于 1 的依赖
 
-如果新旧版本的包使用相同的导入路径，那么新包与旧包是兼容的
+如果新旧版本的包使用相同地导入路径，那么新包与旧包是兼容的
 
 如果我们要为 Go 项目添加主版本号大于 1 的依赖，
 我们就需要使用“语义导入版本”机制，在声明它的导入路径的基础上，加上版本号信息
@@ -283,8 +283,8 @@ func main() {
 无符号整型: `uint8 uint16 uint32 uint64`
 
 两者的区别在于最高二进制位(bit位)是否被解释为符号位
-- 0代表正 
-- 1代表负
+- 0 代表正 
+- 1 代表负
 
 **平台相关整型**
 
@@ -920,3 +920,145 @@ func bar() {
 ```
 
 ### 方法
+
+- Go 中的方法必须是归属于一个类型的
+- receiver 参数的基类型本身`不能为指针类型或接口类型`
+- 方法声明要与 receiver 参数的基类型声明放在同一个包内
+  - 我们不能为原生类型（诸如 int、float64、map 等）添加方法
+  - 不能跨越 Go 包为其他包的类型声明新方法
+
+```go
+// 可以省略 func (T) M(t string)
+// receiver 部分的参数名不能与方法参数列表中的形参名，以及具名返回值中的变量名存在冲突
+func (t *T或T) MethodName(参数列表) (返回值列表) {
+    // 方法体
+}
+```
+
+- 如果 Go 方法要把对 receiver 参数代表的类型实例的修改，反映到原类型实例上，那么我们应该选择 `*T 作为 receiver` 参数的类型。
+- 如果 T 类型需要实现某个接口，那我们就要使用 T 作为 receiver 参数的类型，来满足接口类型方法集合中的所有方法
+
+
+**方法集合**
+
+方法集合也是用来判断一个类型是否实现了某接口类型的唯一手段
+
+方法集合决定接口实现的含义就是:
+
+如果某类型 T 的方法集合与某接口类型的方法集合相同，
+或者类型 T 的方法集合是接口类型 I 方法集合的超集，那么我们就说这个类型 T 实现了接口 I。
+或者说，方法集合这个概念在 Go 语言中的主要用途，就是用来判断某个类型是否实现了某个接口。
+
+
+**什么是类型嵌入**
+
+支持两种类型嵌入:
+
+- 接口类型的类型嵌入
+- 结构体类型的类型嵌入
+
+```go
+type E interface {
+  M1()
+  M2()
+}
+
+type I interface {
+  M1()
+  M2()
+  M3()
+}
+
+// 用接口类型 E 替代上面接口 I 定义中 M1 M2, 类型嵌入
+type I interface {
+  E
+  M3()
+}
+```
+
+```go
+type T1 int
+type t2 struct{
+    n int
+    m int
+}
+
+type I interface {
+    M1()
+}
+// 结构体类型嵌入
+type S1 struct {
+    T1 // 标识符 T1 表示字段名为 T1，它的类型为自定义类型 T1
+    *t2 // 标识符 t2 表示字段名为 t2，它的类型为自定义结构体类型 t2 的指针类型
+    I // 标识符 I 表示字段名为 I，它的类型为接口类型 I
+    a int
+    b string
+}
+```
+
+结构体类型的方法集合，包含嵌入的接口类型的方法集合
+
+**结构体类型嵌入结构体类型**
+
+```go
+type T1 struct{}
+
+func (T1) T1M1()   { println("T1's M1") } // T1 的方法集合包含：T1M1
+func (*T1) PT1M2() { println("PT1's M2") } // *T1 的方法集合包含：T1M1、PT1M2；
+
+type T2 struct{}
+
+func (T2) T2M1()   { println("T2's M1") } // T2 的方法集合包含：T2M1
+func (*T2) PT2M2() { println("PT2's M2") }// *T2 的方法集合包含：T2M1、PT2M2。
+
+type T struct {
+    T1
+    *T2
+}
+
+func main() {
+    t := T{
+        T1: T1{},
+        T2: &T2{},
+    }
+
+    dumpMethodSet(t) // 类型 T 的方法集合 = T1 的方法集合 + *T2 的方法集合
+    dumpMethodSet(&t) // 类型 *T 的方法集合 = *T1 的方法集合 + *T2 的方法集合
+}
+```
+
+**defined 类型与 alias 类型的方法集合**
+
+凡通过类型声明语法声明的类型都被称为 defined 类型
+
+基于类型别名（type alias）定义的新类型
+
+```go
+type I interface {
+    M1()
+    M2()
+}
+type T int
+type NT T // 基于已存在的类型T创建新的defined类型NT
+type NI I // 基于已存在的接口类型I创建新defined接口类型NI
+
+type T struct{}
+
+func (T) M1()  {}
+func (*T) M2() {}
+
+type T1 = T
+
+func main() {
+var t T
+var pt *T
+var t1 T1
+var pt1 *T1
+
+dumpMethodSet(t)
+dumpMethodSet(t1)
+
+dumpMethodSet(pt)
+dumpMethodSet(pt1)
+}
+```

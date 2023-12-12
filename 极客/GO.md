@@ -1062,3 +1062,197 @@ dumpMethodSet(pt)
 dumpMethodSet(pt1)
 }
 ```
+
+### 接口: 接口即契约
+
+接口类型是由 type 和 interface 关键字定义的一组方法集合
+```go
+type Myinterface interface {
+	M1(int) error
+	M2(io.writer, ...string)
+}
+
+// 空接口类型
+type EmptyInterface interface {}
+```
+
+```go
+// 如果一个变量的类型是空接口类型，由于空接口类型的方法集合为空
+// 意味着任何类型都实现了空接口的方法集合，
+// 所以我们可以将任何类型的值作为右值，赋值给空接口类型的变量
+var i interface{} = 15 // ok
+i = "hello, golang" // ok
+type T struct{}
+var t T
+i = t  // ok
+i = &t // ok
+```
+
+```go
+v, ok := i.(T) // 类型断言
+```
+
+- 隐式契约，无需签署，自动生效
+- 尽量定义小接口，即方法个数在 1~3 个之间的接口
+  - 接口越小, 抽象程度越高
+  - 小接口易于实现和测试
+  - 小接口表示的“契约”职责单一，易于复用组合
+
+**定义小接口, 遵循的几点**
+
+- 首先, 别管接口大小, 先抽象出接口
+- 将大接口拆分为小接口
+- 接口的单一契约职责
+
+**接口的静态特性和动态特性**
+
+- 静态特性: 接口类型变量具有静态类型, `var err error` 中变量 `err` 的静态类型为 error
+- 动态特性: 体现在接口类型变量在运行时还存储了右值的真实类型信息，这个右值的真实类型被称为接口类型变量的动态类型
+
+```go
+var err error
+err = errors.New("error1")
+fmt.Printf("%T\n", err)  // *errors.errorString
+```
+
+- `nil error 值 != nil`
+
+**接口类型的装箱（boxing）原理**
+
+装箱（boxing）是编程语言领域的一个基础概念，一般是指把一个值类型转换成引用类型，比如在支持装箱概念的 Java 语言中，将一个 int 变量转换成 Integer 对象就是一个装箱操作。
+
+在 Go 语言中，将任意类型赋值给一个接口类型变量也是装箱操作
+
+
+**一切皆组合**
+
+在计算机技术中，正交性用于表示某种不相依赖性或是解耦性。
+如果两个或更多事物中的一个发生变化，不会影响其他事物，那么这些事物就是正交的
+
+- Go语言无类型体系, 没有父子类的概念, 类型定义是正交独立的
+- 方法和类型是正交的，每种类型都可以拥有自己的方法集合，方法本质上只是一个将 receiver 参数作为第一个参数的函数而已
+- 接口与它的实现者之间无“显式关联”，也就说接口与 Go 语言其他部分也是正交的。
+
+**垂直组合**
+
+垂直组合更多用在将多个类型（如上图中的 T1、I1 等）通过“类型嵌入（Type Embedding）”的方式实现新类型（如 NT1）的定义。
+
+```go
+// 通过嵌入接口构建接口
+type ReadWriter interface {
+    Reader
+    Writer
+}
+
+// 通过嵌入接口构建结构体类型
+type MyReader struct {
+    io.Reader // underlying reader
+    N int64   // max bytes remaining
+}
+```
+
+**接口应用的几种模式**
+
+1. 基本模式
+
+```go
+// 接受接口类型参数的函数或方法是水平组合的基本语法
+func YourFuncName(param YourInterfaceType)
+```
+
+2. 创建模式
+
+Go 社区流传一个经验法则：“接受接口，返回结构体（Accept interfaces, return structs）”
+
+```go
+// $GOROOT/src/sync/cond.go
+type Cond struct {
+    ... ...
+    L Locker
+}
+
+func NewCond(l Locker) *Cond {
+    return &Cond{L: l}
+}
+
+// $GOROOT/src/log/log.go
+type Logger struct {
+    mu     sync.Mutex 
+    prefix string     
+    flag   int        
+    out    io.Writer  
+    buf    []byte    
+}
+
+func New(out io.Writer, prefix string, flag int) *Logger {
+    return &Logger{out: out, prefix: prefix, flag: flag}
+}
+
+// $GOROOT/src/log/log.go
+type Writer struct {
+    err error
+    buf []byte
+    n   int
+    wr  io.Writer
+}
+
+func NewWriterSize(w io.Writer, size int) *Writer {
+    // Is it already a Writer?
+    b, ok := w.(*Writer)
+    if ok && len(b.buf) >= size {
+        return b
+    }
+    if size <= 0 {
+        size = defaultBufSize
+    }
+    return &Writer{
+        buf: make([]byte, size),
+        wr:  w,
+    }
+}
+```
+
+3. 包装器模式
+   
+在基本模式的基础上，当返回值的类型与参数类型相同时，我们能得到下面形式的函数原型
+
+```go
+// 返回具备新功能特性的、实现相同接口类型的新类型。
+func YourWrapperFunc(param YourInterfaceType) YourInterfaceType
+
+
+// $GOROOT/src/io/io.go
+func LimitReader(r Reader, n int64) Reader { return &LimitedReader{r, n} }
+
+type LimitedReader struct {
+    R Reader // underlying reader
+    N int64  // max bytes remaining
+}
+
+func (l *LimitedReader) Read(p []byte) (n int, err error) {
+// ... ...
+}
+```
+
+4. 适配器模式
+
+适配器模式的核心是适配器函数类型（Adapter Function Type）。
+适配器函数类型是一个辅助水平组合实现的“工具”类型。这里我要再强调一下，它是一个类型。
+它可以将一个满足特定函数签名的普通函数，显式转换成自身类型的实例，转换后的实例同时也是某个接口类型的实现者
+
+
+```go
+func greetings(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Welcome!")
+}
+
+func main() {
+    http.ListenAndServe(":8080", http.HandlerFunc(greetings))
+}
+```
+
+5. 中间件 Middleware
+
+所谓中间件（如：logHandler、authHandler）本质就是一个包装函数（支持链式调用），
+但它的内部利用了适配器函数类型（http.HandlerFunc），
+将一个普通函数（比如例子中的几个匿名函数）转型为实现了 http.Handler 的类型的实例

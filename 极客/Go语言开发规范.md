@@ -247,4 +247,70 @@ func NewPerson(name string, age int) *Person {
 - 代理模式: 可以为另一个对象提供一个替身或者占位符，以控制对这个对象的访问。
 
 
-### API 风格
+### API 风格 RESTful
+
+REST 有一系列规范，满足这些规范的 API 均可称为 `RESTful API`, 把所有内容都视为资源
+
+- 以资源 (resource) 为中心，所有的东西都抽象成资源，所有的行为都应该是在资源上的 CRUD 操作
+  - 资源对应着面向对象范式里的对象，面向对象范式以对象为中心。
+  - 资源使用 URI 标识，每个资源实例都有一个唯一的 URI 标识
+- 资源是有状态的，使用 JSON/XML 等在 HTTP Body 里表征资源的状态。
+- 客户端通过四个 HTTP 动词，对服务器端资源进行操作，实现“表现层状态转化”
+- 无状态，这里的无状态是指每个 RESTful API 请求都包含了所有足够完成本次操作的信息，服务器端无须保持 session
+
+
+URI 设计:
+
+- 资源名使用名词而不是动词，并且用名词复数表示
+  - Collection：一堆资源的集合。例如我们系统里有很多用户（User）, 这些用户的集合就是 Collection
+  - Member：单个特定资源。例如系统中特定名字的用户，就是 Collection 里的一个 Member
+- URI 结尾不应包含/
+- URI 中不能出现下划线 _，必须用中杠线 -代替
+- URI 路径用小写，不要用大写。
+- 避免层级过深的 URI。超过 2 层的资源嵌套会很乱，建议将其他资源转化为?参数
+
+统一分页 / 过滤 / 排序 / 搜索功能
+
+- 分页：在列出一个 Collection 下所有的 Member 时，应该提供分页功能，例如/users?offset=0&limit=20
+- 过滤：如果用户不需要一个资源的全部状态属性，可以在 URI 参数里指定返回哪些属性，例如/users?fields=email,username,address
+- 排序：用户很多时候会根据创建时间或者其他因素，列出一个 Collection 中前 100 个 Member，这时可以在 URI 参数中指明排序参数，例如/users?sort=age,desc
+- 搜索：当一个资源的 Member 太多时，用户可能想通过搜索, 建议按模糊匹配来搜索。
+
+
+### API风格 RPC API
+
+`RPC（Remote Procedure Call）`，即远程过程调用，是一个计算机通信协议
+
+服务端实现了一个函数，客户端使用 RPC 框架提供的接口，像调用本地函数一样调用这个函数，并获取返回值。RPC 屏蔽了底层的网络通信细节，使得开发人员无需关注网络编程的细节，可以将更多的时间和精力放在业务逻辑本身的实现上，从而提高开发效率
+
+
+RPC 调用过程
+
+1. Client 通过本地调用, 调用 Client Stub
+2. Client Stub将参数打包成一个小希, 然后发送这个消息
+3. Client 所在的 OS 将消息发送给 Server
+4. Server 端接收到消息后，将消息传递给 Server Stub
+5. Server Stub 将消息解包（也叫 Unmarshalling）得到参数。
+6. Server Stub 调用服务端的子程序（函数），处理完后，将最终结果按照相反的步骤返回给 Client。
+
+**gRPC 介绍**
+
+gRPC 是由 Google 开发的高性能、开源、跨多种编程语言的通用 RPC 框架，
+基于 `HTTP 2.0` 协议开发，
+默认采用 `Protocol Buffers` 数据序列化协议
+
+- 支持多种语言，例如 Go、Java、C、C++、C#、Node.js、PHP、Python、Ruby 等
+- 基于 IDL（Interface Definition Language）文件定义服务，通过 proto3 工具生成指定语言的数据结构、服务端接口以及客户端 Stub
+- 通信协议基于标准的 HTTP/2 设计，支持双向流、消息头压缩、单 TCP 的多路复用、服务端推送等特性。
+- 支持 Protobuf 和 JSON 序列化数据格式。Protobuf 是一种语言无关的高性能序列化框架，可以减少网络传输流量，提高通信效率。
+
+**Protocol Buffers**
+
+- 更快的数据传输速度：protobuf 在传输时，会将数据序列化为二进制数据，和 XML、JSON 的文本传输格式相比，这可以节省大量的 IO 操作，从而提高数据传输速度
+- 跨平台多语言：protobuf 自带的编译工具 protoc 可以基于 protobuf 定义文件，编译出不同语言的客户端或者服务端，供程序直接调用，因此可以满足多语言需求的场景
+- 具有非常好的扩展性和兼容性，可以更新已有的数据结构，而不破坏和影响原有的程序
+- 基于 IDL 文件定义服务，通过 proto3 工具生成指定语言的数据结构、服务端和客户端接口
+
+### Makefile
+
+高效管理项目， Makefile 来管理是目前的最佳实践

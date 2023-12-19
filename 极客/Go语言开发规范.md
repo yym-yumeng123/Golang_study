@@ -314,3 +314,449 @@ gRPC 是由 Google 开发的高性能、开源、跨多种编程语言的通用 
 ### Makefile
 
 高效管理项目， Makefile 来管理是目前的最佳实践
+
+
+### 静态代码检查
+
+```go
+go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.41.1
+```
+
+### 生成 swagger api 文档
+
+```go
+go get -u github.com/go-swagger/go-swagger/cmd/swagger
+```
+
+### 科学的错误码
+
+1. 常见的错误码设计方式
+
+- 不论请求成功或失败，始终返回200 http status code，在 HTTP Body 中包含用户账号没有找到的错误信息
+- 返回http 404 Not Found错误码，并在 Body 中返回简单的错误信息
+- 返回http 404 Not Found错误码，并在 Body 中返回详细的错误信息
+
+2. 错误码设计建议
+
+- 有区别于http status code的业务码，业务码需要有一定规则，可以通过业务码判断出是哪类错误。
+- 请求出错时，可以通过http status code直接感知到请求出错
+- 返回的错误信息，需要是可以直接展示给用户的安全信息，也就是说不能包含敏感信息
+- 返回的数据格式应该是固定的、规范的。
+- 错误信息要保持简洁，并且提供有用的信息
+
+3. 业务Code码设计
+
+- 可以非常方便地定位问题和定位代码行
+- 错误码包含一定的信息，通过错误码可以判断出错误级别、错误模块和具体错误信息
+- Go 中的 HTTP 服务器开发都是引用 net/http 包，该包中只有 60 个错误码，基本都是跟 HTTP 请求相关的错误码，在一个大型系统中，这些错误码完全不够用，而且这些错误码跟业务没有任何关联，满足不了业务的需求。引入业务的 Code 码，则可以解决这些问题
+- 业务开发过程中，可能需要判断错误是哪种类型，以便做相应的逻辑处理，通过定制的错误可以很容易做到这点
+- Code 码设计规范：纯数字表示，不同部位代表不同的服务，不同的模块。
+
+100101
+
+- 10: 服务。
+- 01: 某个服务下的某个模块。
+- 01: 模块下的错误码序号，每个模块可以注册 100 个错误。
+
+4. 设置HTTP Status Code
+
+Go net/http 提供了 60个错误码, 分为如下5类:
+
+- 1XX - 指示信息 表示请求已接收, 继续处理
+- 2XX - 请求成功 表示成功处理了请求的状态代码
+- 3XX - 请求被重定向 表示要完成请求，需要进一步操作。通常，这些状态代码用来重定向
+- 4XX - 请求错误 表示请求可能出错，妨碍了服务器的处理，通常是客户端出错，需要客户端做进一步的处理
+- 5XX - 服务器错误 示服务器在尝试处理请求时发生内部错误。这些错误可能是服务器本身的错误，而不是客户端的问题。
+- 200 成功
+- 400 客户端出问题
+- 500 服务端出问题
+- 401 认证失败
+- 403 授权失败
+- 404 资源找不到
+
+### 设计错误包
+
+```go
+type withCode struct {
+	err error // 错误
+	code int // 业务错误码
+	cause error // cause error
+	*stack // 错误堆栈
+}
+```
+
+### 日志包
+
+- 标准库 log 包
+- glog
+- logrus
+- zap
+
+### 构建应用
+
+- 命令行参数解析: 主要用来解析命令行参数，这些命令行参数可以影响命令的运行效果
+  - `Pflag` 包
+- 配置文件解析：一个大型应用，通常具有很多参数，为了便于管理和配置这些参数，通常会将这些参数放在一个配置文件中，供程序读取并解析。
+  - `Viper` 包
+- 应用的命令行框架：应用最终是通过命令来启动的。这里有 3 个需求点，一是命令需要具备 Help 功能，这样才能告诉使用者如何去使用；二是命令需要能够解析命令行参数和配置文件；三是命令需要能够初始化业务代码，并最终启动业务进程。也就是说，我们的命令需要具备框架的能力，来纳管这 3 个部分。
+  - `Cobra` 包
+
+### 构建应用实战
+
+**应用的三大基本功能**
+
+Go 后端服务，基本上可以分为 API 服务和非 API 服务两类。
+
+- API 服务：通过对外提供 HTTP/RPC 接口来完成指定的功能。比如订单服务，通过调用创建订单的 API 接口，来创建商品订单。
+- 非 API 服务：通过监听、定时运行等方式，而不是通过 API 调用来完成某些任务。比如数据处理服务，定时从 Redis 中获取数据，处理后存入后端存储中。再比如消息处理服务，监听消息队列（如 NSQ/Kafka/RabbitMQ），收到消息后进行处理。
+
+启动流程基本一致，都可以分为三步：
+
+1. 应用框架的构建
+2. 应用初始化
+
+### Web服务核心功能
+
+- Web 服务最核心的功能是路由匹配
+
+- 参数解析、参数校验、逻辑处理、返回结果
+- HTTP 参数解析和返回
+  - path 路径参数
+  - query 字符串参数
+  - form 表单参数
+  - http header 参数 header
+  - body 消息体参数 
+
+**Gin**
+
+1. HTTP/HTTPS 支持
+```go
+insecureServer := &http.Server{
+  Addr:         ":8080",
+  Handler:      router(),
+  ReadTimeout:  5 * time.Second,
+  WriteTimeout: 10 * time.Second,
+}
+...
+err := insecureServer.ListenAndServe()
+```
+
+```go
+secureServer := &http.Server{
+  Addr:         ":8443",
+  Handler:      router(),
+  ReadTimeout:  5 * time.Second,
+  WriteTimeout: 10 * time.Second,
+}
+...
+err := secureServer.ListenAndServeTLS("server.pem", "server.key")
+```
+
+2. JSON数据支持
+
+Gin 支持多种数据通信格式，例如 `application/json、application/xml`。
+可以通过`c.ShouldBindJSON`函数，将 Body 中的 JSON 格式数据解析到指定的 Struct 中，
+通过`c.JSON`函数返回 JSON 格式的数据。
+
+3. 路由匹配
+
+- 精确匹配 `/products/:name`
+- 模糊匹配 `products/*name`
+
+4. 路由分组
+
+```go
+v1 := router.Group("/v1", gin.BasicAuth(gin.Accounts{"foo": "bar", "colin": "colin404"}))
+{
+    productv1 := v1.Group("/products")
+    {
+        // 路由匹配
+        productv1.POST("", productHandler.Create)
+        productv1.GET(":name", productHandler.Get)
+    }
+
+    orderv1 := v1.Group("/orders")
+    {
+        // 路由匹配
+        orderv1.POST("", orderHandler.Create)
+        orderv1.GET(":name", orderHandler.Get)
+    }
+}
+
+v2 := router.Group("/v2", gin.BasicAuth(gin.Accounts{"foo": "bar", "colin": "colin404"}))
+{
+    productv2 := v2.Group("/products")
+    {
+        // 路由匹配
+        productv2.POST("", productHandler.Create)
+        productv2.GET(":name", productHandler.Get)
+    }
+}
+```
+
+5. 一进程多服务
+
+```go
+var eg errgroup.Group
+insecureServer := &http.Server{...}
+secureServer := &http.Server{...}
+
+eg.Go(func() error {
+  err := insecureServer.ListenAndServe()
+  if err != nil && err != http.ErrServerClosed {
+    log.Fatal(err)
+  }
+  return err
+})
+eg.Go(func() error {
+  err := secureServer.ListenAndServeTLS("server.pem", "server.key")
+  if err != nil && err != http.ErrServerClosed {
+    log.Fatal(err)
+  }
+  return err
+}
+
+if err := eg.Wait(); err != nil {
+  log.Fatal(err)
+})
+```
+
+
+6. 参数解析 参数校验 逻辑处理 返回结果
+
+```go
+func (u *productHandler) Create(c *gin.Context) {
+  u.Lock()
+  defer u.Unlock()
+
+  // 1. 参数解析
+  var product Product
+  if err := c.ShouldBindJSON(&product); err != nil {
+    c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+  }
+
+  // 2. 参数校验
+  if _, ok := u.products[product.Name]; ok {
+    c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("product %s already exist", product.Name)})
+    return
+  }
+  product.CreatedAt = time.Now()
+
+  // 3. 逻辑处理
+  u.products[product.Name] = product
+  log.Printf("Register product %s success", product.Name)
+
+  // 4. 返回结果
+  c.JSON(http.StatusOK, product)
+}
+```
+
+```go
+// Gin 提供了一些函数，来分别读取这些 HTTP 参数，每种类别会提供两种函数
+// 一种函数可以直接读取某个参数的值
+// 另外一种函数会把同类 HTTP 参数绑定到一个 Go 结构体中
+
+gin.Default().GET("/:name/:id", nil)
+
+name := c.Param("name")
+action := c.Param("action")
+
+type Person struct {
+  ID string `uri:"id" binding:"required,uuid"`
+  Name string `uri:"name" binding:"required"`
+}
+
+if err := c.ShouldBindUri(&person); err != nil {
+  // normal code
+  return
+}
+```
+
+Gin 在绑定参数时，是通过结构体的 tag 来判断要绑定哪类参数到结构体中的
+
+- 路径参数 uri `ShouldBindUri BindUri`
+- 查询字符串参数 form `ShouldBindQuery BindQuery`
+- 表单参数 form `ShouldBind`
+- http头参数 header `shouldBindHeader BindHeader`
+- 消息体参数, 根据Content-Type `shouldBindJSON BindJSON`
+
+
+针对每种参数类型，Gin 都有对应的函数来获取和绑定这些参数。这些函数都是基于如下两个函数进行封装的：
+
+- `ShouldBindWith(obj interface{}, b binding.Binding) error`
+
+很多 ShouldBindXXX 函数底层都是调用 ShouldBindWith 函数来完成参数绑定的,
+该函数会根据传入的绑定引擎，将参数绑定到传入的结构体指针中
+如果绑定失败，只返回错误内容，但`不终止 HTTP` 请求
+
+
+- `MustBindWith(obj interface{}, b binding.Binding) error`
+
+很多 BindXXX 函数底层都是调用 MustBindWith 函数来完成参数绑定的
+该函数会根据传入的绑定引擎，将参数绑定到传入的结构体指针中
+如果绑定失败，`返回错误并终止请求，返回 HTTP 400 错误`
+
+7. 中间件
+
+- 中间件做成可加载的，通过配置文件指定程序启动时加载哪些中间件
+- 只将一些通用的、必要的功能做成中间件。
+- 在编写中间件时，一定要保证中间件的代码质量和性能
+
+```go
+// 中间件作用于所有的HTTP请求
+router.Use(gin.Logger(), gin.Recovery()) 
+```
+
+8. 认证 RequestID 跨域
+
+```go
+router := gin.New()
+
+// 认证
+router.Use(gin.BasicAuth(gin.Accounts{"foo": "bar", "colin": "colin404"}))
+
+// RequestID
+router.Use(requestid.New(requestid.Config{
+    Generator: func() string {
+        return "test"
+    },
+}))
+
+// 跨域
+// CORS for https://foo.com and https://github.com origins, allowing:
+// - PUT and PATCH methods
+// - Origin header
+// - Credentials share
+// - Preflight requests cached for 12 hours
+router.Use(cors.New(cors.Config{
+    AllowOrigins:     []string{"https://foo.com"},
+    AllowMethods:     []string{"PUT", "PATCH"},
+    AllowHeaders:     []string{"Origin"},
+    ExposeHeaders:    []string{"Content-Length"},
+    AllowCredentials: true,
+    AllowOriginFunc: func(origin string) bool {
+        return origin == "https://github.com"
+    },
+    MaxAge: 12 * time.Hour,
+}))
+```
+
+### 访问认证
+
+- 认证（Authentication，英文缩写 authn）：用来验证某个用户是否具有访问系统的权限
+。如果认证通过，该用户就可以访问系统，从而创建、修改、删除、查询平台支持的资源
+- 授权（Authorization，英文缩写 authz）：用来验证某个用户是否具有访问某个资源的权限，
+如果授权通过，该用户就能对资源做增删改查等操作
+
+四种基本的认证方式
+
+1. Basic 认证（基础认证），是最简单的认证方式; 简单地将用户名:密码进行 base64 编码后，
+放到 HTTP Authorization Header 中。HTTP 请求到达后端服务后，
+后端服务会解析出 Authorization Header 中的 base64 字符串，
+解码获取用户名和密码，并将用户名和密码跟数据库中记录的值进行比较，
+如果匹配则认证通过
+2. Digest 认证（摘要认证），是另一种 HTTP 认证协议，它与基本认证兼容，但修复了基本认证的严重缺陷
+
+- 绝不会用明文方式在网络上发送密码
+- 可以有效防止恶意用户进行重放攻击
+- 可以有选择地防止对报文内容的篡改。
+
+3. OAuth
+
+OAuth（开放授权）是一个开放的授权标准，
+允许用户让第三方应用访问该用户在某一 Web 服务上存储的私密资源（例如照片、视频、音频等），
+而无需将用户名和密码提供给第三方应用
+
+OAuth2.0 一共分为四种授权方式，分别为密码式、隐藏式、凭借式和授权码模式
+
+4. Bearer
+
+Bearer 认证，也称为令牌认证，是一种 HTTP 身份验证方法。
+Bearer 认证的核心是 bearer token
+
+### GORM
+
+```go
+// 定义了一个 GORM 模型（Models）
+type Product struct {
+    gorm.Model
+    Code  string `gorm:"column:code"`
+    Price uint   `gorm:"column:price"`
+}
+
+// TableName maps to mysql table name.
+func (p *Product) TableName() string {
+    return "product"
+}
+```
+
+```go
+// 1. Auto migration for given models
+// 只对新增的字段或索引进行变更
+db.AutoMigrate(&Product{})
+```
+
+```go
+// 插入表记录
+// 2. Insert the value into database
+if err := db.Create(&Product{Code: "D42", Price: 100}).Error; err != nil {
+    log.Fatalf("Create error: %v", err)
+}
+PrintProducts(db)
+```
+
+```go
+// 获取符合条件的记录
+// 3. Find first record that match given conditions
+product := &Product{}
+if err := db.Where("code= ?", "D42").First(&product).Error; err != nil {
+    log.Fatalf("Get product error: %v", err)
+}
+```
+
+```go
+// 更新表记录
+// 4. Update value in database, if the value doesn't have primary key, will insert it
+product.Price = 200
+if err := db.Save(product).Error; err != nil {
+    log.Fatalf("Update product error: %v", err)
+}
+PrintProducts(db)
+```
+
+```go
+// 删除
+// 5. Delete value match given conditions
+if err := db.Where("code = ?", "D42").Delete(&Product{}).Error; err != nil {
+    log.Fatalf("Delete product error: %v", err)
+}
+PrintProducts(db)
+```
+
+1. 模型定义
+
+GORM 使用模型(Models) 来映射一个数据库表, 默认情况下, 使用 ID 作为主键;
+使用 CreatedAt、UpdatedAt、DeletedAt 字段追踪创建、更新和删除时间
+
+```go
+type Animal struct {
+  AnimalID int64     `gorm:"column:animalID;primarykey"` // 将列名设为 `animalID`
+  Birthday time.Time `gorm:"column:birthday"`            // 将列名设为 `birthday`
+  Age      int64     `gorm:"column:age"`                 // 将列名设为 `age`
+}
+
+func (a *Animal) TableName() string {
+  return "animal"
+}
+```
+
+2. 连接数据库
+
+GORM 支持连接池，底层是用 database/sql 包来维护连接池的，连接池设置如下：
+```go
+sqlDB, err := db.DB()
+sqlDB.SetMaxIdleConns(100)              // 设置MySQL的最大空闲连接数（推荐100）
+sqlDB.SetMaxOpenConns(100)             // 设置MySQL的最大连接数（推荐100）
+sqlDB.SetConnMaxLifetime(time.Hour)    // 设置MySQL的空闲连接最大存活时间（推荐10s）
+```

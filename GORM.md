@@ -56,20 +56,40 @@ func init() {
     // Open 第一个参数: 数据库
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true, // 事务配置
+		Logger: logger.Default.LogMode(logger.Info), // 打印日志
 	})
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
+	setPool(DB)
+}
+
+// 设置 连接池
+func setPool(db *gorm.DB)  {
+  sqlDB, err := db.DB()
+  sqlDB.setMaxIdleConns(5)
+	
 }
 ```
 
 #### orm 操作表
 
 ```go
+// 创建一个模型
 type User struct {
-	ID int
+	gorm.Model // id 创建时间 更新时间 删除时间
 	UserName string
 	Age int
+}
+
+type Roles []string
+type Teacher struct {
+	gorm.Model
+	Name string `gorm:"size:256"`
+	Age int8 `gorm:"check:age > 13"`
+	Salary float64 `gorm:"scale:2;precision:7"`
+	Roles Roles `gorm:"serializer:json"`
 }
 
 // 自定义表名
@@ -77,27 +97,33 @@ func (User) TableName() string{
 	return "my_user"
 }
 
+
+func init() {
+	// 自动迁移
+	DB.Migrator().AutoMograte()
+}
+
 // 创建表 表名为 结构体 小写复数 users
-DB.CreateTable(&User{})
+DB.Migrator().CreateTable(&User{})
 // 创建自定义名字的 表
-DB.Table("user1").CteateTable(&User{})
+DB.Migrator().Table("user1").CteateTable(&User{})
 
 // 删除表
-DB.DropTable(&User{})
-DB.DropTable("user1")
+DB.Migrator().DropTable(&User{})
+DB.Migrator().DropTable("user1")
 
 // 判断表是否存在
-DB.HasTable(&USer{})
+DB.Migrator().HasTable(&USer{})
 
 // 给表重命名
-DB.RenameTable(oldName, newName)
+DB.Migrator().RenameTable(oldName, newName)
 ```
 
 #### 对表里面的数据 CRUD
 
 ```go
 // 创建 users 表
-DB.CreateTable(&User{})
+DB.Migrator().CreateTable(&User{})
 
 // 新增 data
 DB.Create(&User{UserName: "yym", Age: 18})
@@ -462,10 +488,55 @@ DB.Exec("delete from users where user_id = ?", 1)
 DB.Exec("update users set name = ? where user_id = ?", "张三", 3)
 ```
 
+### hooks
+
+```go
+func (t *teacher) BeforeSave(tx *gorm.DB) error {
+	print("hook beforesave")
+}
+AfterSave
+BeforeCreate
+AfterCreate
+BeforeUpdate
+```
+
+### session
+
+```go
+func Session() {
+	tx := DB.Session(&gorm.Session{
+		
+})
+}
+```
+
 #### 日志
 
 Golang标准库的日志框架比较简单, 使用第三方日志 `logrus`
 
 ```shell
 go get -u github.com/sirupsen/logrus
+```
+
+
+----
+
+
+优势
+
+1. 规范一致, 代码工整
+2. 减少一定的工作量,  建表/修改表结构, 直接操作对象
+3. 解耦数据库与数据层
+
+ORM
+
+1. 数据层并不能因为使用 orm 而显著减少
+2. 使用了大量的反射, 导致程序性能比原生 SQL 更慢
+3. 一个没有sql基础的开发, 大概率不能正确使用 orm
+4. orm 提供了大量的表关系接口
+
+ORM CRUD
+
+```go
+
 ```
